@@ -1,0 +1,134 @@
+{
+  "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
+  "id": "dtb-schedule-panel",
+  "version": "1.4.0",
+  "name": "DTB Schedule Panel",
+  "description": "Upcoming schedule with two parallel tracks. 15 input lines ('time event1 (subline1) - event2 (subline2)'), the first 8 non-empty lines are shown, evenly distributed vertically. White panel, black text, red DTB Turnerkreuz logo. A footer text area at the bottom is configurable. Slides in from the right, one third of the screen width. A delay field (minutes, may be negative) is added to every displayed time.",
+  "author": {
+    "name": "DTB"
+  },
+  "main": "dtb-schedule.mjs",
+  "supportsRealTime": true,
+  "supportsNonRealTime": false,
+  "stepCount": 1,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "delay": {
+        "type": "integer",
+        "title": "Delay in minutes (negative = ahead of schedule)",
+        "default": 0
+      },
+      "title": {
+        "type": "string",
+        "title": "Title",
+        "default": "Coming up"
+      },
+      "leftHeader": {
+        "type": "string",
+        "title": "Left column heading",
+        "default": "Left"
+      },
+      "rightHeader": {
+        "type": "string",
+        "title": "Right column heading",
+        "default": "Right"
+      },
+      "footer": {
+        "type": "string",
+        "title": "Footer text (bottom of panel)",
+        "default": "Alle Uhrzeiten sind circa-Angaben."
+      },
+      "line1": {
+        "type": "string",
+        "title": "Line 1",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": "10:00 11/12 weiblich (Quali Gruppe 1) - 13/14 männlich (Quali)"
+      },
+      "line2": {
+        "type": "string",
+        "title": "Line 2",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": "11:15 9/10 weiblich (Quali Gruppe 2) - 15/16 männlich (Quali Gruppe 2)"
+      },
+      "line3": {
+        "type": "string",
+        "title": "Line 3",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": "12:30 Mittagspause (Halle geschlossen) - Mittagspause (Halle geschlossen)"
+      },
+      "line4": {
+        "type": "string",
+        "title": "Line 4",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": "13:30 Finale Boden (Mehrkampf) - Finale Barren (Mehrkampf)"
+      },
+      "line5": {
+        "type": "string",
+        "title": "Line 5",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": "14:15 Finale Reck (Mehrkampf) - Finale Ringe (Mehrkampf)"
+      },
+      "line6": {
+        "type": "string",
+        "title": "Line 6",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": "15:00 Siegerehrung (Haupthalle) - Siegerehrung (Nebenhalle)"
+      },
+      "line7": {
+        "type": "string",
+        "title": "Line 7",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": ""
+      },
+      "line8": {
+        "type": "string",
+        "title": "Line 8",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": ""
+      },
+      "line9": {
+        "type": "string",
+        "title": "Line 9",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": ""
+      },
+      "line10": {
+        "type": "string",
+        "title": "Line 10",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": ""
+      },
+      "line11": {
+        "type": "string",
+        "title": "Line 11",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": ""
+      },
+      "line12": {
+        "type": "string",
+        "title": "Line 12",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": ""
+      },
+      "line13": {
+        "type": "string",
+        "title": "Line 13",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": ""
+      },
+      "line14": {
+        "type": "string",
+        "title": "Line 14",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": ""
+      },
+      "line15": {
+        "type": "string",
+        "title": "Line 15",
+        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
+        "default": ""
+      }
+    }
+  }
+}

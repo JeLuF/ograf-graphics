@@ -1,0 +1,72 @@
+{
+  "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
+  "id": "dtb-dual-lower-third",
+  "version": "1.0.0",
+  "name": "DTB Dual Lower Third",
+  "description": "Two independent white lower-third stickers (left and right) with black text and a red DTB Turnerkreuz.",
+  "author": {
+    "name": "DTB"
+  },
+  "main": "dtb-lowerthird.mjs",
+
+  "supportsRealTime": true,
+  "supportsNonRealTime": false,
+  "stepCount": 1,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "show": {
+        "type": "string",
+        "title": "Show (applies on Play/Update)",
+        "enum": [
+          "both",
+          "left",
+          "right"
+        ],
+        "default": "both"
+      },
+      "leftLine1": {
+        "type": "string",
+        "title": "Left: line 1 (headline)",
+        "default": "Left Name"
+      },
+      "leftLine2": {
+        "type": "string",
+        "title": "Left: line 2 (subtitle)",
+        "default": "Left Title"
+      },
+      "rightLine1": {
+        "type": "string",
+        "title": "Right: line 1 (headline)",
+        "default": "Right Name"
+      },
+      "rightLine2": {
+        "type": "string",
+        "title": "Right: line 2 (subtitle)",
+        "default": "Right Title"
+      }
+    }
+  },
+  "customActions": [
+    {
+      "id": "showLeft",
+      "name": "Show left",
+      "description": "Show the left lower third (right side unchanged)."
+    },
+    {
+      "id": "showRight",
+      "name": "Show right",
+      "description": "Show the right lower third (left side unchanged)."
+    },
+    {
+      "id": "showBoth",
+      "name": "Show both",
+      "description": "Show the left and right lower thirds."
+    },
+    {
+      "id": "hide",
+      "name": "Hide",
+      "description": "Hide all lower thirds."
+    }
+  ]
+}

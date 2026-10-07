@@ -1,0 +1,63 @@
+{
+  "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
+  "id": "dtb-warmup-countdown",
+  "version": "1.1.0",
+  "name": "DTB Warmup Countdown",
+  "description": "Warmup card with a live countdown (duration in minutes or target clock time). White card, black text, red DTB Turnerkreuz logo, corner of choice (top/bottom, left/right). Play starts the countdown, Stop hides it.",
+  "author": {
+    "name": "DTB"
+  },
+  "main": "dtb-countdown.mjs",
+  "supportsRealTime": true,
+  "supportsNonRealTime": false,
+  "stepCount": 1,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "title": "Title",
+        "default": "Warmup"
+      },
+      "subtitle": {
+        "type": "string",
+        "title": "Subtitle (e.g. group)",
+        "default": "Gruppe 1"
+      },
+      "position": {
+        "type": "string",
+        "title": "Position",
+        "enum": [
+          "top-left",
+          "bottom-left",
+          "top-right",
+          "bottom-right"
+        ],
+        "default": "top-left"
+      },
+      "duration": {
+        "type": "string",
+        "title": "Duration in minutes (counted from Play)",
+        "default": "15"
+      },
+      "endTime": {
+        "type": "string",
+        "title": "Optional: end at clock time (H:MM or HH:MM)",
+        "description": "If set, the countdown runs to this time of day (local time of the playout machine) instead of using the duration.",
+        "default": ""
+      },
+      "finishedText": {
+        "type": "string",
+        "title": "Text when countdown reaches zero",
+        "default": "Wettkampf beginnt gleich"
+      }
+    }
+  },
+  "customActions": [
+    {
+      "id": "restart",
+      "name": "Restart countdown",
+      "description": "Restart the countdown from the full duration (or the end time)."
+    }
+  ]
+}
