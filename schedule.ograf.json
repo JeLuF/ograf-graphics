@@ -1,13 +1,13 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
-  "id": "dtb-schedule-panel",
+  "id": "schedule-panel",
   "version": "1.4.0",
-  "name": "DTB Schedule Panel",
-  "description": "Upcoming schedule with two parallel tracks. 15 input lines ('time event1 (subline1) - event2 (subline2)'), the first 8 non-empty lines are shown, evenly distributed vertically. White panel, black text, red DTB Turnerkreuz logo. A footer text area at the bottom is configurable. Slides in from the right, one third of the screen width. A delay field (minutes, may be negative) is added to every displayed time.",
+  "name": "Schedule Panel",
+  "description": "Upcoming schedule with two parallel tracks. 15 input lines ('time event1 (subline1) - event2 (subline2)'), the first 8 non-empty lines are shown, evenly distributed vertically. White panel, black text, logo. A footer text area at the bottom is configurable. Slides in from the right, one third of the screen width. A delay field (minutes, may be negative) is added to every displayed time.",
   "author": {
     "name": "DTB"
   },
-  "main": "dtb-schedule.mjs",
+  "main": "schedule.mjs",
   "supportsRealTime": true,
   "supportsNonRealTime": false,
   "stepCount": 1,

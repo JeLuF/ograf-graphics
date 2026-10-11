@@ -1,13 +1,13 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
-  "id": "dtb-warmup-countdown",
+  "id": "countdown",
   "version": "1.1.0",
-  "name": "DTB Warmup Countdown",
-  "description": "Warmup card with a live countdown (duration in minutes or target clock time). White card, black text, red DTB Turnerkreuz logo, corner of choice (top/bottom, left/right). Play starts the countdown, Stop hides it.",
+  "name": "Countdown",
+  "description": "Card with a live countdown (duration in minutes or target clock time). White card, black text, logo, corner of choice (top/bottom, left/right). Play starts the countdown, Stop hides it.",
   "author": {
-    "name": "DTB"
+    "name": "Emisora"
   },
-  "main": "dtb-countdown.mjs",
+  "main": "countdown.mjs",
   "supportsRealTime": true,
   "supportsNonRealTime": false,
   "stepCount": 1,
@@ -21,19 +21,28 @@
       },
       "subtitle": {
         "type": "string",
-        "title": "Subtitle (e.g. group)",
-        "default": "Gruppe 1"
+        "title": "Subtitle",
+        "default": "Group 1"
       },
       "position": {
         "type": "string",
         "title": "Position",
+	"gddType": "select",
         "enum": [
           "top-left",
           "bottom-left",
           "top-right",
           "bottom-right"
         ],
-        "default": "top-left"
+        "default": "top-left",
+	"gddOptions": {
+	    "labels": {
+	        "top-left":     "Top left",
+	        "top-right":    "Top right",
+	        "bottom-left":  "Bottom left",
+	        "bottom-right": "Bottom right"
+            }
+	}
       },
       "duration": {
         "type": "string",
@@ -49,7 +58,7 @@
       "finishedText": {
         "type": "string",
         "title": "Text when countdown reaches zero",
-        "default": "Wettkampf beginnt gleich"
+        "default": "Continuing soon!"
       }
     }
   },

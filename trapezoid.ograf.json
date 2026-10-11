@@ -1,13 +1,13 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
-  "id": "dtb-top-banner",
+  "id": "top-banner",
   "version": "1.2.0",
-  "name": "DTB Top Banner",
+  "name": "Top Banner",
   "description": "Single-line trapezoid banner attached to the top edge of the screen (white, black text). Width and height are configurable (in px at 1920 px screen width); the height also scales font size and corner radii. Narrower at the bottom, rounded bottom corners, concave rounded corners that blend the banner into the top edge. Slides in from the top.",
   "author": {
-    "name": "DTB"
+    "name": "Emisora"
   },
-  "main": "dtb-trapezoid.mjs",
+  "main": "trapezoid.mjs",
   "supportsRealTime": true,
   "supportsNonRealTime": false,
   "stepCount": 1,
@@ -17,7 +17,7 @@
       "text": {
         "type": "string",
         "title": "Text",
-        "default": "Deutsche Meisterschaften Gerätturnen"
+        "default": "Find more infos in the bio!"
       },
       "width": {
         "type": "string",
