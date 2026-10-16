@@ -1,13 +1,13 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
-  "id": "top-banner",
-  "version": "1.2.0",
-  "name": "Top Banner",
+  "id": "trapezoid",
+  "version": "1.2.1",
+  "name": "Trapezoid Banner",
   "description": "Single-line trapezoid banner attached to the top edge of the screen (white, black text). Width and height are configurable (in px at 1920 px screen width); the height also scales font size and corner radii. Narrower at the bottom, rounded bottom corners, concave rounded corners that blend the banner into the top edge. Slides in from the top.",
   "author": {
     "name": "Emisora"
   },
-  "main": "trapezoid.mjs",
+  "main": "graphic.mjs",
   "supportsRealTime": true,
   "supportsNonRealTime": false,
   "stepCount": 1,
@@ -17,17 +17,22 @@
       "text": {
         "type": "string",
         "title": "Text",
-        "default": "Find more infos in the bio!"
+        "default": "Short Break, we'll be back soon!",
+        "order": 1
       },
       "width": {
         "type": "string",
-        "title": "Width in px (at 1920 px screen width)",
-        "default": "1100"
+        "title": "Width in px",
+        "default": "1100",
+        "order": 2,
+	"hidden": true,
       },
       "height": {
         "type": "string",
-        "title": "Height in px (at 1920 px screen width; scales font size)",
-        "default": "70"
+        "title": "Height in px",
+        "default": "70",
+        "order": 3,
+	"hidden": true,
       }
     }
   }

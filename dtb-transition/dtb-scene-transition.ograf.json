@@ -1,0 +1,58 @@
+{
+  "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
+  "id": "dtb-scene-transition",
+  "version": "1.2.1",
+  "name": "DTB Scene Transition",
+  "description": "Full-screen scene transition (zero-step graphic, played once): the four red F of the Turnerkreuz fly in from the screen corners, turning and growing, while the background fades to white; they hold as the complete Turnerkreuz (80% of the screen height) for a configurable time, then fly back out and the background fades to transparent. Play runs the whole sequence once and the graphic animates out by itself; Stop is optional and aborts the sequence early.",
+  "author": {
+    "name": "DTB"
+  },
+  "thumbnails": [
+    {
+      "file": "thumbs/dtb-transition.webp",
+      "resolution": {
+        "width": 640,
+        "height": 360
+      }
+    }
+  ],
+  "main": "graphic.mjs",
+  "supportsRealTime": true,
+  "supportsNonRealTime": false,
+  "stepCount": 0,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "holdSeconds": {
+        "type": "string",
+        "title": "Opaque duration in seconds (fully white, Turnerkreuz complete)",
+        "default": "2",
+        "order": 1
+      },
+      "flySeconds": {
+        "type": "string",
+        "title": "Fly-in / fly-out duration in seconds",
+        "default": "1",
+        "order": 2
+      },
+      "heightPercent": {
+        "type": "string",
+        "title": "Turnerkreuz height in % of screen height",
+        "default": "80",
+        "order": 3
+      },
+      "rotationDegrees": {
+        "type": "string",
+        "title": "Rotation of each F during fly-in/out in degrees (0 = none, negative = other direction)",
+        "default": "90",
+        "order": 4
+      },
+      "startSizePercent": {
+        "type": "string",
+        "title": "Size of the F's at the screen corners in % (they grow past 100% briefly and settle at 100%)",
+        "default": "40",
+        "order": 5
+      }
+    }
+  }
+}

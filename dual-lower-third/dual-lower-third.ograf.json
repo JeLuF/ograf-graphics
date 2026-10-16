@@ -1,16 +1,31 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
   "id": "dual-lower-third",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "Dual Lower Third",
   "description": "Two independent white lower-third stickers (left and right) with black text and a logo.",
   "author": {
     "name": "Emisora"
   },
-  "main": "lowerthird.mjs",
-
+  "main": "graphic.mjs",
   "supportsRealTime": true,
   "supportsNonRealTime": false,
+  "thumbnails": [
+    {
+      "file": "thumbs/dual-lower-thirds2.webp",
+      "resolution": {
+        "width": 640,
+        "height": 360
+      }
+    },
+    {
+      "file": "thumbs/dual-lower-thirds.webp",
+      "resolution": {
+        "width": 640,
+        "height": 360
+      }
+    }
+  ],
   "stepCount": 1,
   "schema": {
     "type": "object",
@@ -23,27 +38,40 @@
           "left",
           "right"
         ],
-        "default": "both"
+        "gddType": "select",
+        "gddOptions": {
+          "labels": {
+            "both": "Show both",
+            "left": "Show left",
+            "right": "Show right"
+          }
+        },
+        "default": "both",
+        "order": 1
       },
       "leftLine1": {
         "type": "string",
         "title": "Left: line 1 (headline)",
-        "default": "Left Name"
+        "default": "Left Name",
+        "order": 2
       },
       "leftLine2": {
         "type": "string",
         "title": "Left: line 2 (subtitle)",
-        "default": "Left Title"
+        "default": "Left Title",
+        "order": 3
       },
       "rightLine1": {
         "type": "string",
         "title": "Right: line 1 (headline)",
-        "default": "Right Name"
+        "default": "Right Name",
+        "order": 4
       },
       "rightLine2": {
         "type": "string",
         "title": "Right: line 2 (subtitle)",
-        "default": "Right Title"
+        "default": "Right Title",
+        "order": 5
       }
     }
   },

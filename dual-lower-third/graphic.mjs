@@ -139,4 +139,3 @@ export default class DtbDualLowerThird extends HTMLElement {
   async goToTime() { return { statusCode: 400, statusMessage: "Non-realtime not supported" }; }
   async setActionsSchedule() { return { statusCode: 400, statusMessage: "Non-realtime not supported" }; }
 }
-

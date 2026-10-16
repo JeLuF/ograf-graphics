@@ -189,4 +189,3 @@ export default class DtbSchedulePanel extends HTMLElement {
     return { statusCode: 404, statusMessage: `Unknown action: ${params?.id}` };
   }
 }
-

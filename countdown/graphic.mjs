@@ -173,4 +173,3 @@ export default class DtbWarmupCountdown extends HTMLElement {
     return { statusCode: 404, statusMessage: `Unknown action: ${params?.id}` };
   }
 }
-
