@@ -1,5 +1,5 @@
 // DTB Top Banner - OGraf web component
-const KEYS = ["text", "width", "height"];
+const KEYS = ["text", "width", "height", "backgroundColor", "textColor"];
 
 // Width/height are entered in pixels for a 1920 px wide screen and scaled with the screen (via vw).
 const PX_PER_VW = 19.2;
@@ -50,10 +50,20 @@ function geometry(widthPx, heightPx) {
   return { d, viewW: W, viewH: H, wVw, hVw, fontVw: hVw * FONT_RATIO, padVw: hVw * PAD_RATIO };
 }
 
+// Colour fields -> CSS custom properties on the host; invalid or empty values fall back to the defaults in :host.
+const COLORS = { backgroundColor: "--bg", textColor: "--fg" };
+const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+function applyColors(el, data) {
+  for (const [key, prop] of Object.entries(COLORS)) {
+    const c = String(data?.[key] ?? "").trim();
+    if (HEX_RE.test(c)) el.style.setProperty(prop, c); else el.style.removeProperty(prop);
+  }
+}
+
 const TEMPLATE = `
 <style>
   :host { position: absolute; inset: 0; display: block; overflow: hidden;
-          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; }
+          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; --bg: #fff; --fg: #000; }
   .banner {
     position: absolute; top: 0; left: 50%;
     transform: translateY(calc(-100% - 2vw));
@@ -63,8 +73,8 @@ const TEMPLATE = `
   .banner.visible { transform: translateY(0); }
   .banner.instant { transition: none; }
   svg.shape { display: block; width: 100%; height: 100%; }
-  .fill { fill: #fff; }
-  .content { position: absolute; top: 0; bottom: .1vw; display: flex; align-items: center; justify-content: center; color: #000; }
+  .fill { fill: var(--bg); }
+  .content { position: absolute; top: 0; bottom: .1vw; display: flex; align-items: center; justify-content: center; color: var(--fg); }
   .text { font-weight: 800; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 </style>
 <div class="banner">
@@ -85,6 +95,7 @@ export default class DtbTopBanner extends HTMLElement {
 
   _render() {
     const $ = (sel) => this.shadowRoot.querySelector(sel);
+    applyColors(this, this.data);
     const g = geometry(num(this.data.width, DEFAULT_WIDTH_PX), num(this.data.height, DEFAULT_HEIGHT_PX));
     this.banner.style.width = `${g.wVw}vw`;
     this.banner.style.height = `${g.hVw}vw`;

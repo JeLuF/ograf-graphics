@@ -1,5 +1,5 @@
 // DTB Scene Transition - OGraf web component
-const KEYS = ["holdSeconds", "flySeconds", "heightPercent", "rotationDegrees", "startSizePercent"];
+const KEYS = ["backgroundColor", "accentColor", "holdSeconds", "flySeconds", "heightPercent", "rotationDegrees", "startSizePercent"];
 
 const num = (v, fallback, min, max) => {
   const n = Number(String(v ?? "").replace(",", "."));
@@ -47,12 +47,22 @@ const F_TRANSFORMS = [
 const CORNER_SIGNS = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
 const F_CENTERS = [[24, 23], [76, 23], [24, 77], [76, 77]]; // centre of each F in the 100x100 viewBox
 
+// Colour fields -> CSS custom properties on the host; invalid or empty values fall back to the defaults in :host.
+const COLORS = { backgroundColor: "--bg", accentColor: "--accent" };
+const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+function applyColors(el, data) {
+  for (const [key, prop] of Object.entries(COLORS)) {
+    const c = String(data?.[key] ?? "").trim();
+    if (HEX_RE.test(c)) el.style.setProperty(prop, c); else el.style.removeProperty(prop);
+  }
+}
+
 const TEMPLATE = `
 <style>
-  :host { position: absolute; inset: 0; display: block; overflow: hidden; pointer-events: none; }
-  .bg { position: absolute; inset: 0; background: #fff; opacity: 0; }
+  :host { position: absolute; inset: 0; display: block; overflow: hidden; pointer-events: none; --bg: #fff; --accent: #e30613; }
+  .bg { position: absolute; inset: 0; background: var(--bg); opacity: 0; }
   svg.cross { position: absolute; left: 50%; top: 50%; aspect-ratio: 1; height: 80%;
-              transform: translate(-50%, -50%); overflow: visible; fill: #e30613; visibility: hidden; }
+              transform: translate(-50%, -50%); overflow: visible; fill: var(--accent); visibility: hidden; }
   :host(.running) svg.cross { visibility: visible; }
 </style>
 <div class="bg"></div>
@@ -152,6 +162,7 @@ export default class DtbSceneTransition extends HTMLElement {
 
   async load(params) {
     if (params?.data && typeof params.data === "object") for (const k of KEYS) if (k in params.data) this.data[k] = params.data[k];
+    applyColors(this, this.data);
     return { statusCode: 200 };
   }
 
@@ -164,6 +175,7 @@ export default class DtbSceneTransition extends HTMLElement {
   async updateAction(params) {
     // new timings are used the next time the transition is played
     if (params?.data && typeof params.data === "object") for (const k of KEYS) if (k in params.data) this.data[k] = params.data[k];
+    applyColors(this, this.data);
     return { statusCode: 200 };
   }
 

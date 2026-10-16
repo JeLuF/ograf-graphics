@@ -1,8 +1,13 @@
 // DTB Warmup Countdown - OGraf web component
-const KEYS = ["title", "subtitle", "position", "duration", "endTime", "finishedText"];
+const KEYS = ["logo", "backgroundColor", "textColor", "accentColor", "title", "subtitle", "position", "duration", "endTime", "finishedText"];
 const POSITIONS = ["top-left", "bottom-left", "top-right", "bottom-right"];
 
-const LOGO = `<svg viewBox="0 0 100 100" aria-label="DTB Turnerkreuz"><defs><path id="f" d="M0 0H44V11H12V18H34V29H12V46H0Z"/></defs><use href="#f" transform="translate(46 46) scale(-1 -1)"/><use href="#f" transform="translate(54 46) scale(1 -1)"/><use href="#f" transform="translate(46 54) scale(-1 1)"/><use href="#f" transform="translate(54 54)"/></svg>`;
+const DEFAULT_LOGO = "./assets/logo.svg";
+// Logo path from the "logo" field, resolved relative to this module (absolute URLs pass through).
+function logoUrl(path) {
+  try { return new URL(String(path || DEFAULT_LOGO), import.meta.url).href; }
+  catch { return new URL(DEFAULT_LOGO, import.meta.url).href; }
+}
 
 // "H:MM" / "HH:MM" -> epoch ms of that time today (local). If it lies more than 12h in the past, use tomorrow.
 function targetFromClock(str, now = Date.now()) {
@@ -22,14 +27,24 @@ function formatRemaining(ms) {
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 
+// Colour fields -> CSS custom properties on the host; invalid or empty values fall back to the defaults in :host.
+const COLORS = { backgroundColor: "--bg", textColor: "--fg", accentColor: "--accent" };
+const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+function applyColors(el, data) {
+  for (const [key, prop] of Object.entries(COLORS)) {
+    const c = String(data?.[key] ?? "").trim();
+    if (HEX_RE.test(c)) el.style.setProperty(prop, c); else el.style.removeProperty(prop);
+  }
+}
+
 const TEMPLATE = `
 <style>
   :host { position: absolute; inset: 0; display: block; overflow: hidden;
-          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; }
+          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; --bg: #fff; --fg: #000; --accent: #e30613; }
   .card {
     position: absolute; width: 24vw;
     display: flex; align-items: stretch; overflow: hidden;
-    background: #fff; color: #000; box-shadow: 0 0.3vw 1vw rgba(0,0,0,.35);
+    background: var(--bg); color: var(--fg); box-shadow: 0 0.3vw 1vw rgba(0,0,0,.35);
     opacity: 0;
     transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .35s ease;
   }
@@ -40,18 +55,18 @@ const TEMPLATE = `
   .card.visible { opacity: 1; transform: translateX(0); }
   .card.instant { transition: none; }
   .logo { flex: none; width: 4.6vw; padding: .8vw 0 .8vw 1vw; display: flex; align-items: center; justify-content: center; }
-  .logo svg { width: 3.6vw; height: 3.6vw; display: block; fill: #e30613; }
+  .logo img { width: 3.6vw; height: 3.6vw; display: block; object-fit: contain; }
   .text { flex: 1; min-width: 0; padding: .8vw 1.4vw .9vw 1.2vw; }
   .title { font-size: 1.3vw; font-weight: 800; letter-spacing: .1vw; text-transform: uppercase; }
-  .status { font-size: 1.1vw; line-height: 1.2; color: #666; min-height: 1.3vw; }
+  .status { font-size: 1.1vw; line-height: 1.2; color: color-mix(in srgb, var(--fg) 60%, var(--bg)); min-height: 1.3vw; }
   .time { font-size: 4vw; font-weight: 800; line-height: 1.05; margin-top: .2vw;
           font-variant-numeric: tabular-nums; }
-  .time.urgent { color: #e30613; }
-  .bar { position: absolute; left: 0; bottom: 0; height: .35vw; width: 100%; background: #e30613;
+  .time.urgent { color: var(--accent); }
+  .bar { position: absolute; left: 0; bottom: 0; height: .35vw; width: 100%; background: var(--accent);
          transform-origin: left center; }
 </style>
 <div class="card">
-  <div class="logo">${LOGO}</div>
+  <div class="logo"><img alt=""></div>
   <div class="text">
     <div class="title"></div>
     <div class="status"></div>
@@ -73,6 +88,12 @@ export default class DtbWarmupCountdown extends HTMLElement {
     this.total = 1;
     this.timer = null;
     this._applyPosition();
+    this._applyLogo();
+  }
+
+  _applyLogo() {
+    const url = logoUrl(this.data.logo);
+    for (const img of this.shadowRoot.querySelectorAll(".logo img")) if (img.src !== url) img.src = url;
   }
 
   // Corner placement; the card slides in from the nearest side edge.
@@ -136,6 +157,8 @@ export default class DtbWarmupCountdown extends HTMLElement {
     if (data && typeof data === "object") for (const k of KEYS) if (k in data) this.data[k] = data[k];
     const timingChanged = before !== `${this.data.duration}|${this.data.endTime}`;
     this._applyPosition();
+    this._applyLogo();
+    applyColors(this, this.data);
     if (timingChanged && this.running) this._start(); else this._tick();
   }
 

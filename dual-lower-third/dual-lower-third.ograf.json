@@ -1,7 +1,7 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
   "id": "dual-lower-third",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "name": "Dual Lower Third",
   "description": "Two independent white lower-third stickers (left and right) with black text and a logo.",
   "author": {
@@ -30,6 +30,23 @@
   "schema": {
     "type": "object",
     "properties": {
+      "logo": {
+        "type": "string",
+        "title": "Logo",
+        "default": "./assets/logo.svg",
+        "gddType": "file-path/image-path",
+        "gddOptions": {
+          "extensions": [
+            "jpg",
+            "png",
+            "jpeg",
+            "webp",
+            "gif",
+            "svg"
+          ]
+        },
+        "order": 0
+      },
       "show": {
         "type": "string",
         "title": "Show (applies on Play/Update)",
@@ -72,6 +89,22 @@
         "title": "Right: line 2 (subtitle)",
         "default": "Right Title",
         "order": 5
+      },
+      "backgroundColor": {
+        "type": "string",
+        "title": "Background colour",
+        "order": 6,
+        "default": "#ffffff",
+        "gddType": "color-rrggbb",
+        "pattern": "^#[0-9a-f]{6}$"
+      },
+      "textColor": {
+        "type": "string",
+        "title": "Text colour",
+        "order": 7,
+        "default": "#000000",
+        "gddType": "color-rrggbb",
+        "pattern": "^#[0-9a-f]{6}$"
       }
     }
   },

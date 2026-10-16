@@ -1,19 +1,45 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
   "id": "wheel-of-fortune",
-  "version": "1.1.2",
+  "version": "1.2.1",
   "name": "Wheel of Fortune",
-  "description": "Wheel of fortune with up to 15 outcomes (input per line: 'count #color text'). Segment size is proportional to the count, so the chance of winning equals the share. Includes a colour legend and shows the winner after the spin. Play shows the wheel, the next step (or the Spin action) spins it, Stop hides it. Optional distributed layout: equal-sized areas, repeated by share count and spread around the wheel.",
+  "description": "Wheel of fortune with up to 15 outcomes (input per line: 'count text', colours from a selectable theme). Segment size is proportional to the count, so the chance of winning equals the share. Includes a colour legend and shows the winner after the spin. Play shows the wheel, the next step (or the Spin action) spins it, Stop hides it. Optional distributed layout: equal-sized areas, repeated by share count and spread around the wheel.",
   "author": {
     "name": "DTB"
   },
   "main": "graphic.mjs",
+  "thumbnails": [
+    {
+      "file": "thumbs/wheel-of-fortune.jpg",
+      "resolution": {
+        "width": 640,
+        "height": 360
+      }
+    }
+  ],
   "supportsRealTime": true,
   "supportsNonRealTime": false,
   "stepCount": 2,
   "schema": {
     "type": "object",
     "properties": {
+      "logo": {
+        "type": "string",
+        "title": "Logo",
+        "default": "./assets/logo.svg",
+        "gddType": "file-path/image-path",
+        "gddOptions": {
+          "extensions": [
+            "jpg",
+            "png",
+            "jpeg",
+            "webp",
+            "gif",
+            "svg"
+          ]
+        },
+        "order": 0
+      },
       "title": {
         "type": "string",
         "title": "Title",
@@ -63,107 +89,142 @@
       "line1": {
         "type": "string",
         "title": "Line 1",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
-        "default": "1 #e30613 Top prize",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
+        "default": "1 Top prize",
         "order": 5
       },
       "line2": {
         "type": "string",
         "title": "Line 2",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
-        "default": "3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
+        "default": "3 Fan package",
         "order": 6
       },
       "line3": {
         "type": "string",
         "title": "Line 3",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
-        "default": "4 #2a6ebb Free drink",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
+        "default": "4 Free drink",
         "order": 7
       },
       "line4": {
         "type": "string",
         "title": "Line 4",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
-        "default": "2 #3aa655 Free ticket",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
+        "default": "2 Free ticket",
         "order": 8
       },
       "line5": {
         "type": "string",
         "title": "Line 5",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
-        "default": "5 #8e44ad Small prize",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
+        "default": "5 Small prize",
         "order": 9
       },
       "line6": {
         "type": "string",
         "title": "Line 6",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 10
       },
       "line7": {
         "type": "string",
         "title": "Line 7",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 11
       },
       "line8": {
         "type": "string",
         "title": "Line 8",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 12
       },
       "line9": {
         "type": "string",
         "title": "Line 9",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 13
       },
       "line10": {
         "type": "string",
         "title": "Line 10",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 14
       },
       "line11": {
         "type": "string",
         "title": "Line 11",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 15
       },
       "line12": {
         "type": "string",
         "title": "Line 12",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 16
       },
       "line13": {
         "type": "string",
         "title": "Line 13",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 17
       },
       "line14": {
         "type": "string",
         "title": "Line 14",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 18
       },
       "line15": {
         "type": "string",
         "title": "Line 15",
-        "description": "Format: count #color text  (the #color is optional; empty lines are ignored). Example: 3 #f2a900 Fan package",
+        "description": "Format: count text  (empty lines are ignored; colours come from the visual theme). Example: 3 Fan package",
         "default": "",
         "order": 19
+      },
+      "backgroundColor": {
+        "type": "string",
+        "title": "Background colour",
+        "order": 20,
+        "default": "#ffffff",
+        "gddType": "color-rrggbb",
+        "pattern": "^#[0-9a-f]{6}$"
+      },
+      "textColor": {
+        "type": "string",
+        "title": "Text colour",
+        "order": 21,
+        "default": "#000000",
+        "gddType": "color-rrggbb",
+        "pattern": "^#[0-9a-f]{6}$"
+      },
+      "accentColor": {
+        "type": "string",
+        "title": "Accent colour",
+        "order": 22,
+        "default": "#e30613",
+        "gddType": "color-rrggbb",
+        "pattern": "^#[0-9a-f]{6}$"
+      },
+      "theme": {
+        "v_spx": {
+          "ftype": "filelist",
+          "assetfolder": "./assets/",
+          "extension": "css"
+        },
+        "type": "string",
+        "title": "Visual Theme",
+        "default": "./assets/rainbow.css",
+        "order": 23
       }
     }
   },

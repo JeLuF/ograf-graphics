@@ -1,7 +1,7 @@
 // DTB Schedule Panel - OGraf web component
 const LINES = 15; // input fields
 const ROWS = 8;   // rows shown (first 8 non-empty lines)
-const KEYS = ["delay", "title", "leftHeader", "rightHeader", "footer"];
+const KEYS = ["logo", "backgroundColor", "textColor", "accentColor", "delay", "title", "leftHeader", "rightHeader", "footer"];
 for (let i = 1; i <= LINES; i++) KEYS.push(`line${i}`);
 
 // Shifts a H:MM / HH:MM time by `delay` minutes (may be negative, wraps around midnight).
@@ -38,7 +38,12 @@ function parseLine(raw) {
   return { time, left: part(left), right: part(right) };
 }
 
-const LOGO = `<svg viewBox="0 0 100 100" aria-label="DTB Turnerkreuz"><defs><path id="f" d="M0 0H44V11H12V18H34V29H12V46H0Z"/></defs><use href="#f" transform="translate(46 46) scale(-1 -1)"/><use href="#f" transform="translate(54 46) scale(1 -1)"/><use href="#f" transform="translate(46 54) scale(-1 1)"/><use href="#f" transform="translate(54 54)"/></svg>`;
+const DEFAULT_LOGO = "./assets/logo.svg";
+// Logo path from the "logo" field, resolved relative to this module (absolute URLs pass through).
+function logoUrl(path) {
+  try { return new URL(String(path || DEFAULT_LOGO), import.meta.url).href; }
+  catch { return new URL(DEFAULT_LOGO, import.meta.url).href; }
+}
 
 const rowsHtml = Array.from({ length: ROWS }, (_, i) => `
   <div class="row grid" data-row="${i + 1}" style="--i:${i}">
@@ -47,31 +52,41 @@ const rowsHtml = Array.from({ length: ROWS }, (_, i) => `
     <div class="b"><div class="ev"></div><div class="sub"></div></div>
   </div>`).join("");
 
+// Colour fields -> CSS custom properties on the host; invalid or empty values fall back to the defaults in :host.
+const COLORS = { backgroundColor: "--bg", textColor: "--fg", accentColor: "--accent" };
+const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+function applyColors(el, data) {
+  for (const [key, prop] of Object.entries(COLORS)) {
+    const c = String(data?.[key] ?? "").trim();
+    if (HEX_RE.test(c)) el.style.setProperty(prop, c); else el.style.removeProperty(prop);
+  }
+}
+
 const TEMPLATE = `
 <style>
   :host { position: absolute; inset: 0; display: block; overflow: hidden;
-          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; }
+          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; --bg: #fff; --fg: #000; --accent: #e30613; }
   .panel {
     position: absolute; top: 0; right: 0; bottom: 0; width: 33.333%;
     box-sizing: border-box; padding: 1.6vw 1.4vw 1.4vw 1.6vw;
     display: flex; flex-direction: column;
-    background: #fff; color: #000;
+    background: var(--bg); color: var(--fg);
     box-shadow: -0.3vw 0 1vw rgba(0,0,0,.35);
     transform: translateX(105%);
     transition: transform .6s cubic-bezier(.2,.8,.2,1);
   }
   .panel.visible { transform: translateX(0); }
   .header { display: flex; align-items: center; gap: 1vw; }
-  .logo svg { width: 3.6vw; height: 3.6vw; display: block; fill: #e30613; }
+  .logo img { width: 3.6vw; height: 3.6vw; display: block; object-fit: contain; }
   .title { font-size: 2vw; font-weight: 800; line-height: 1.1; }
   .grid { display: grid; grid-template-columns: 4.6vw 1fr 1fr; column-gap: .8vw; }
   .cols {
-    margin-top: 1.2vw; padding-bottom: .5vw; border-bottom: .2vw solid #e30613;
+    margin-top: 1.2vw; padding-bottom: .5vw; border-bottom: .2vw solid var(--accent);
     font-size: .85vw; font-weight: 700; letter-spacing: .08vw; text-transform: uppercase;
   }
   .rows { flex: 1; display: grid; grid-template-rows: repeat(8, minmax(0, 1fr)); min-height: 0; }
   .row {
-    align-items: center; min-height: 0; padding: 0; border-bottom: .08vw solid #cfcfcf;
+    align-items: center; min-height: 0; padding: 0; border-bottom: .08vw solid color-mix(in srgb, var(--fg) 19%, var(--bg));
     opacity: 0; transform: translateX(2vw);
     transition: opacity .3s ease, transform .3s ease;
   }
@@ -85,11 +100,11 @@ const TEMPLATE = `
   .t { font-size: 1.4vw; font-weight: 800; line-height: 1.15; }
   .a, .b { overflow-wrap: anywhere; }
   .ev { font-size: 1.2vw; font-weight: 700; line-height: 1.15; }
-  .sub { font-size: 1.2vw; font-weight: 400; line-height: 1.15; color: #666; margin-top: .2vw; }
+  .sub { font-size: 1.2vw; font-weight: 400; line-height: 1.15; color: color-mix(in srgb, var(--fg) 60%, var(--bg)); margin-top: .2vw; }
   .sub:empty { display: none; }
   .footer {
-    margin-top: .8vw; padding-top: .8vw; border-top: .08vw solid #cfcfcf;
-    font-size: 1vw; line-height: 1.25; color: #444;
+    margin-top: .8vw; padding-top: .8vw; border-top: .08vw solid color-mix(in srgb, var(--fg) 19%, var(--bg));
+    font-size: 1vw; line-height: 1.25; color: color-mix(in srgb, var(--fg) 73%, var(--bg));
     opacity: 0; transition: opacity .3s ease;
   }
   .footer:empty { display: none; }
@@ -97,7 +112,7 @@ const TEMPLATE = `
   .instant, .instant .row, .instant .footer { transition: none !important; }
 </style>
 <div class="panel">
-  <div class="header"><div class="logo">${LOGO}</div><div class="title"></div></div>
+  <div class="header"><div class="logo"><img alt=""></div><div class="title"></div></div>
   <div class="cols grid"><div></div><div class="lh"></div><div class="rh"></div></div>
   <div class="rows">${rowsHtml}</div>
   <div class="footer"></div>
@@ -111,11 +126,19 @@ export default class DtbSchedulePanel extends HTMLElement {
     this.shadowRoot.innerHTML = TEMPLATE;
     this.panel = this.shadowRoot.querySelector(".panel");
     this.data = {};
+    this._applyLogo();
+  }
+
+  _applyLogo() {
+    const url = logoUrl(this.data.logo);
+    for (const img of this.shadowRoot.querySelectorAll(".logo img")) if (img.src !== url) img.src = url;
   }
 
   _render() {
     const $ = (sel) => this.shadowRoot.querySelector(sel);
     const d = this.data;
+    this._applyLogo();
+    applyColors(this, d);
     $(".title").textContent = d.title ?? "";
     $(".lh").textContent = d.leftHeader ?? "";
     $(".rh").textContent = d.rightHeader ?? "";

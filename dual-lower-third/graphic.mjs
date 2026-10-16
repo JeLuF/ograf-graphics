@@ -5,14 +5,31 @@ const DEFAULTS = {
   rightLine1: "", rightLine2: "",
 };
 
+const DEFAULT_LOGO = "./assets/logo.svg";
+// Logo path from the "logo" field, resolved relative to this module (absolute URLs pass through).
+function logoUrl(path) {
+  try { return new URL(String(path || DEFAULT_LOGO), import.meta.url).href; }
+  catch { return new URL(DEFAULT_LOGO, import.meta.url).href; }
+}
+
+// Colour fields -> CSS custom properties on the host; invalid or empty values fall back to the defaults in :host.
+const COLORS = { backgroundColor: "--bg", textColor: "--fg" };
+const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+function applyColors(el, data) {
+  for (const [key, prop] of Object.entries(COLORS)) {
+    const c = String(data?.[key] ?? "").trim();
+    if (HEX_RE.test(c)) el.style.setProperty(prop, c); else el.style.removeProperty(prop);
+  }
+}
+
 const TEMPLATE = `
 <style>
   :host { position: absolute; inset: 0; display: block; overflow: hidden;
-          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; }
+          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; --bg: #fff; --fg: #000; }
   .sticker {
     position: absolute; bottom: 7%;
     display: flex; align-items: stretch; max-width: 44%;
-    background: #fff; color: #000;
+    background: var(--bg); color: var(--fg);
     box-shadow: 0 0.3vw 1vw rgba(0,0,0,.35);
     opacity: 0; transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .35s ease;
   }
@@ -22,7 +39,7 @@ const TEMPLATE = `
   .sticker.instant { transition: none; }
   .logo { flex: none; width: 4.6vw; padding: .8vw 0 .8vw 1vw; display: flex; align-items: center; justify-content: center; }
   .right .logo { padding: .8vw 1vw .8vw 0; }
-  .logo svg { width: 3.6vw; height: 3.6vw; display: block; fill: #e30613; }
+  .logo img { width: 3.6vw; height: 3.6vw; display: block; object-fit: contain; }
   .text { padding: .9vw 1.6vw; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
   .right .text { text-align: right; }
   .l1 { font-size: 2.1vw; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -31,7 +48,7 @@ const TEMPLATE = `
 </style>
 ${["left", "right"].map(s => `
 <div class="sticker ${s}">
-  <div class="logo"><svg viewBox="0 0 100 100" aria-label="DTB Turnerkreuz"><defs><path id="f" d="M0 0H44V11H12V18H34V29H12V46H0Z"/></defs><use href="#f" transform="translate(46 46) scale(-1 -1)"/><use href="#f" transform="translate(54 46) scale(1 -1)"/><use href="#f" transform="translate(46 54) scale(-1 1)"/><use href="#f" transform="translate(54 54)"/></svg></div>
+  <div class="logo"><img alt=""></div>
   <div class="text"><div class="l1"></div><div class="l2"></div></div>
 </div>`).join("")}
 `;
@@ -47,6 +64,12 @@ export default class DtbDualLowerThird extends HTMLElement {
     };
     this.data = { ...DEFAULTS };
     this.playing = false;
+    this._applyLogo();
+  }
+
+  _applyLogo() {
+    const url = logoUrl(this.data.logo);
+    for (const img of this.shadowRoot.querySelectorAll(".logo img")) if (img.src !== url) img.src = url;
   }
 
   // Show the side(s) selected in data.show (used by Play and by Update while on air)
@@ -79,6 +102,8 @@ export default class DtbDualLowerThird extends HTMLElement {
     if (data && typeof data === "object") this.data = { ...this.data, ...data };
     if (!["both", "left", "right"].includes(this.data.show)) this.data.show = "both";
     this._applyText();
+    this._applyLogo();
+    applyColors(this, this.data);
     return this.data.show !== prevShow;
   }
 

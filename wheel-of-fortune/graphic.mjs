@@ -1,18 +1,26 @@
 // DTB Wheel of Fortune - OGraf web component
 const LINES = 15;
-const KEYS = ["title", "position", "layout", "spinDuration"];
+const KEYS = ["logo", "theme", "backgroundColor", "textColor", "accentColor", "title", "position", "layout", "spinDuration"];
 for (let i = 1; i <= LINES; i++) KEYS.push(`line${i}`);
 const POSITIONS = ["left", "center", "right"];
 
-// Colours used for lines without an explicit #color (cycled in order)
+// Fallback colours, used only if the theme stylesheet does not define a colour (e.g. it failed to load)
 const PALETTE = ["#e30613", "#f2a900", "#2a6ebb", "#3aa655", "#8e44ad", "#ee7c1a", "#00a0b0", "#c2185b", "#6d6e71", "#1d1d1b"];
 
-const LOGO = `<svg viewBox="0 0 100 100" aria-label="DTB Turnerkreuz"><defs><path id="f" d="M0 0H44V11H12V18H34V29H12V46H0Z"/></defs><use href="#f" transform="translate(46 46) scale(-1 -1)"/><use href="#f" transform="translate(54 46) scale(1 -1)"/><use href="#f" transform="translate(46 54) scale(-1 1)"/><use href="#f" transform="translate(54 54)"/></svg>`;
+const DEFAULT_LOGO = "./assets/logo.svg";
+// Colour theme: a stylesheet defining .ramp-2 ... .ramp-15, each with --c1 ... --cN for a wheel with N outcomes.
+const DEFAULT_THEME = "./assets/rainbow.css";
+const MAX_RAMP = 15;
+// Asset path from a field, resolved relative to this module (absolute URLs pass through).
+function assetUrl(path, fallback) {
+  try { return new URL(String(path || fallback), import.meta.url).href; }
+  catch { return new URL(fallback, import.meta.url).href; }
+}
 
 const COLOR_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
-// "count #color text" -> { count, color|null, text } ; null for empty/invalid lines.
-// If the word after the count starts with "#", it is the colour; otherwise it is the beginning of the text.
+// "count text" -> { count, color|null, text } ; null for empty/invalid lines.
+// A "#rrggbb" word right after the count still overrides the theme colour (kept for older data).
 function parseLine(raw) {
   const m = String(raw ?? "").trim().match(/^(\d+)\s*(.*)$/s);
   if (!m) return null;
@@ -27,23 +35,22 @@ function parseLine(raw) {
   return { count, color, text: rest };
 }
 
-// Parses the 15 input lines into outcomes { count, color, text }.
+// Parses the 15 input lines into outcomes { count, color, text } and picks the theme ramp size.
+// Lines without an explicit colour take the colours of the ramp for their number, in line order.
 function buildOutcomes(data) {
   const parsed = [];
   for (let i = 1; i <= LINES; i++) {
     const p = parseLine(data[`line${i}`]);
     if (p) parsed.push(p);
   }
-  // Lines without a colour get palette colours, skipping ones that were set explicitly elsewhere
-  const used = new Set(parsed.filter((p) => p.color).map((p) => p.color.toLowerCase()));
-  const free = PALETTE.filter((c) => !used.has(c));
-  const pool = free.length ? free : PALETTE;
-  let poolIdx = 0;
-  return parsed.map((p, n) => ({
-    count: p.count,
-    color: p.color || pool[poolIdx++ % pool.length],
-    text: p.text || `Option ${n + 1}`,
-  }));
+  const ramp = Math.min(Math.max(parsed.filter((p) => !p.color).length, 2), MAX_RAMP);
+  let k = 0;
+  const outcomes = parsed.map((p, n) => {
+    let color = p.color;
+    if (!color) { k++; color = `var(--c${k}, ${PALETTE[(k - 1) % PALETTE.length]})`; }
+    return { count: p.count, color, text: p.text || `Option ${n + 1}` };
+  });
+  return { outcomes, ramp };
 }
 
 const conflicts = (arr) => {
@@ -101,7 +108,7 @@ const MAX_SLICES = 360; // distributed layout needs one slice per share; beyond 
 // Builds the wheel: outcomes (legend) and slices (what is drawn and what the pointer can land on).
 // Angles are degrees clockwise from the top; weight = relative chance of the slice.
 function buildWheel(data) {
-  const outcomes = buildOutcomes(data);
+  const { outcomes, ramp } = buildOutcomes(data);
   const total = outcomes.reduce((s, o) => s + o.count, 0);
   const distributed = String(data.layout ?? "").trim().toLowerCase() === "distributed"
     && outcomes.length > 0 && total <= MAX_SLICES;
@@ -120,7 +127,7 @@ function buildWheel(data) {
       return sl;
     });
   }
-  return { outcomes, slices };
+  return { outcomes, slices, ramp };
 }
 
 function sectorPath(start, size, R) {
@@ -147,14 +154,24 @@ function planSpin(slices, currentRotation, rand = Math.random) {
   return { idx, delta };
 }
 
+// Colour fields -> CSS custom properties on the host; invalid or empty values fall back to the defaults in :host.
+const COLORS = { backgroundColor: "--bg", textColor: "--fg", accentColor: "--accent" };
+const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+function applyColors(el, data) {
+  for (const [key, prop] of Object.entries(COLORS)) {
+    const c = String(data?.[key] ?? "").trim();
+    if (HEX_RE.test(c)) el.style.setProperty(prop, c); else el.style.removeProperty(prop);
+  }
+}
+
 const TEMPLATE = `
 <style>
   :host { position: absolute; inset: 0; display: block; overflow: hidden;
-          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; }
+          pointer-events: none; font-family: "Helvetica Neue", Arial, sans-serif; --bg: #fff; --fg: #000; --accent: #e30613; }
   .card {
     position: absolute; top: 0; bottom: 0; height: fit-content; margin: auto 0; width: 30vw;
     box-sizing: border-box; padding: 1.4vw 1.6vw 1.5vw;
-    background: #fff; color: #000; box-shadow: 0 0.3vw 1vw rgba(0,0,0,.35);
+    background: var(--bg); color: var(--fg); box-shadow: 0 0.3vw 1vw rgba(0,0,0,.35);
     opacity: 0; transition: transform .6s cubic-bezier(.2,.8,.2,1), opacity .4s ease;
   }
   .card.left   { left: 3%;  transform: translateX(-130%); }
@@ -163,28 +180,29 @@ const TEMPLATE = `
   .card.visible { opacity: 1; transform: none; }
   .card.instant { transition: none; }
   .header { display: flex; align-items: center; gap: 1vw; }
-  .logo svg { width: 3.2vw; height: 3.2vw; display: block; fill: #e30613; }
+  .logo img { width: 3.2vw; height: 3.2vw; display: block; object-fit: contain; }
   .title { font-size: 2vw; font-weight: 800; line-height: 1.1; }
   .wheelwrap { position: relative; width: 19vw; height: 19vw; margin: 1.6vw auto .8vw; }
   .wheel { width: 100%; height: 100%; display: block; transform-origin: 50% 50%; }
   .pointer { position: absolute; left: 50%; top: -1.3vw; width: 2.6vw; height: 2.6vw; margin-left: -1.3vw;
-             fill: #e30613; stroke: #fff; stroke-width: 3; stroke-linejoin: round;
+             fill: var(--accent); stroke: var(--bg); stroke-width: 3; stroke-linejoin: round;
              filter: drop-shadow(0 .1vw .2vw rgba(0,0,0,.4)); }
   .result { display: flex; align-items: center; justify-content: center; gap: .7vw; margin: .6vw 0 .2vw;
-            padding: .5vw .8vw; border: .15vw solid #000; font-size: 1.7vw; font-weight: 800; line-height: 1.15; }
+            padding: .5vw .8vw; border: .15vw solid var(--fg); font-size: 1.7vw; font-weight: 800; line-height: 1.15; }
   .result.hidden { display: none; }
-  .rsw { flex: none; width: 1.5vw; height: 1.5vw; border-radius: .3vw; border: .08vw solid #000; }
+  .rsw { flex: none; width: 1.5vw; height: 1.5vw; border-radius: .3vw; border: .08vw solid var(--fg); }
   .rtxt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .legend { margin-top: .9vw; padding-top: .8vw; border-top: .08vw solid #cfcfcf; column-gap: 1.2vw; }
+  .legend { margin-top: .9vw; padding-top: .8vw; border-top: .08vw solid color-mix(in srgb, var(--fg) 19%, var(--bg)); column-gap: 1.2vw; }
   .item { display: flex; align-items: center; gap: .6vw; margin-bottom: .45vw; break-inside: avoid;
           font-size: 1.15vw; line-height: 1.2; transition: opacity .4s ease; }
-  .sw { flex: none; width: 1.2vw; height: 1.2vw; border-radius: .25vw; border: .07vw solid rgba(0,0,0,.5); }
+  .sw { flex: none; width: 1.2vw; height: 1.2vw; border-radius: .25vw; border: .07vw solid color-mix(in srgb, var(--fg) 50%, transparent); }
   .txt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .legend.done .item { opacity: .35; }
   .legend.done .item.win { opacity: 1; font-weight: 800; }
 </style>
+<link rel="stylesheet" class="theme">
 <div class="card right">
-  <div class="header"><div class="logo">${LOGO}</div><div class="title"></div></div>
+  <div class="header"><div class="logo"><img alt=""></div><div class="title"></div></div>
   <div class="wheelwrap">
     <svg class="wheel" viewBox="-100 -100 200 200"></svg>
     <svg class="pointer" viewBox="0 0 40 40"><path d="M3 3 H37 L20 37 Z"/></svg>
@@ -213,6 +231,19 @@ export default class DtbWheelOfFortune extends HTMLElement {
     this._render();
   }
 
+  _applyLogo() {
+    const url = assetUrl(this.data.logo, DEFAULT_LOGO);
+    for (const img of this.shadowRoot.querySelectorAll(".logo img")) if (img.src !== url) img.src = url;
+  }
+
+  _applyTheme(ramp) {
+    const link = this.shadowRoot.querySelector("link.theme");
+    const url = assetUrl(this.data.theme, DEFAULT_THEME);
+    if (link.href !== url) link.href = url;
+    this.card.classList.remove(...[...this.card.classList].filter((c) => c.startsWith("ramp-")));
+    this.card.classList.add(`ramp-${ramp}`);
+  }
+
   _applyPosition() {
     const p = String(this.data.position ?? "").trim().toLowerCase();
     const pos = POSITIONS.includes(p) ? p : "right";
@@ -223,23 +254,27 @@ export default class DtbWheelOfFortune extends HTMLElement {
   _render() {
     const $ = (sel) => this.shadowRoot.querySelector(sel);
     this._applyPosition();
+    this._applyLogo();
+    applyColors(this, this.data);
     $(".title").textContent = this.data.title ?? "";
-    ({ outcomes: this.outcomes, slices: this.slices } = buildWheel(this.data));
+    const wheel = buildWheel(this.data);
+    ({ outcomes: this.outcomes, slices: this.slices } = wheel);
+    this._applyTheme(wheel.ramp);
 
     // wheel
     const R = 98;
     let svg = "";
     if (this.slices.length === 0) {
-      svg += `<circle r="${R}" fill="#e6e6e6"/>`;
+      svg += `<circle r="${R}" style="fill: color-mix(in srgb, var(--fg) 10%, var(--bg))"/>`;
     } else if (this.slices.length === 1) {
-      svg += `<circle r="${R}" fill="${this.slices[0].color}"/>`;
+      svg += `<circle r="${R}" style="fill: ${this.slices[0].color}"/>`;
     } else {
       for (const s of this.slices) {
-        svg += `<path d="${sectorPath(s.start, s.size, R)}" fill="${s.color}" stroke="#fff" stroke-width="0.8"/>`;
+        svg += `<path d="${sectorPath(s.start, s.size, R)}" style="fill: ${s.color}; stroke: var(--bg)" stroke-width="0.8"/>`;
       }
     }
-    svg += `<circle r="${R}" fill="none" stroke="#000" stroke-width="1.2"/>`
-         + `<circle r="10" fill="#fff" stroke="#000" stroke-width="1.2"/><circle r="4" fill="#e30613"/>`;
+    svg += `<circle r="${R}" fill="none" style="stroke: var(--fg)" stroke-width="1.2"/>`
+         + `<circle r="10" style="fill: var(--bg); stroke: var(--fg)" stroke-width="1.2"/><circle r="4" style="fill: var(--accent)"/>`;
     this.wheel.innerHTML = svg;
 
     // legend
