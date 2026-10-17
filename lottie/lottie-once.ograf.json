@@ -1,0 +1,88 @@
+{
+  "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
+  "id": "lottie-once",
+  "version": "1.2.0",
+  "name": "Lottie Player (play once)",
+  "description": "Plays a Lottie (Bodymovin) JSON animation once and clears the screen by itself (zero-step graphic). Files with 'in'/'loop'/'out' markers play in, loop and out one time each; other files play from start to end. playAction resolves when the screen is clear, with currentStep undefined. Stop is optional and aborts the animation early (fade-out).",
+  "author": {
+    "name": "Emisora"
+  },
+  "main": "graphic-once.mjs",
+  "supportsRealTime": true,
+  "supportsNonRealTime": false,
+  "stepCount": 0,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "lottieFile": {
+        "type": "string",
+        "title": "Lottie file",
+        "default": "./assets/sample.json",
+        "gddType": "file-path",
+        "gddOptions": {
+          "extensions": [
+            "json"
+          ]
+        },
+        "order": 1
+      },
+      "speed": {
+        "type": "string",
+        "title": "Speed (1 = normal)",
+        "default": "1",
+        "order": 2
+      },
+      "size": {
+        "type": "string",
+        "title": "Size in % of the screen",
+        "description": "The animation is fitted (keeping its aspect ratio) into a box of this size; 100 = full screen.",
+        "default": "100",
+        "order": 3
+      },
+      "position": {
+        "type": "string",
+        "title": "Position",
+        "enum": [
+          "center",
+          "top",
+          "bottom",
+          "left",
+          "right",
+          "top-left",
+          "top-right",
+          "bottom-left",
+          "bottom-right"
+        ],
+        "gddType": "select",
+        "gddOptions": {
+          "labels": {
+            "center": "Center",
+            "top": "Top",
+            "bottom": "Bottom",
+            "left": "Left",
+            "right": "Right",
+            "top-left": "Top Left",
+            "top-right": "Top Right",
+            "bottom-left": "Bottom Left",
+            "bottom-right": "Bottom Right"
+          }
+        },
+        "default": "center",
+        "order": 4
+      }
+    }
+  },
+  "customActions": [
+    {
+      "id": "restart",
+      "name": "Restart",
+      "description": "Play the animation once more from the start."
+    }
+  ],
+  "actionDurations": [
+    {
+      "type": "playAction",
+      "duration": -1
+    }
+  ]
+}

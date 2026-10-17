@@ -1,0 +1,100 @@
+{
+  "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
+  "id": "lottie",
+  "version": "1.2.0",
+  "name": "Lottie Player",
+  "description": "Plays a Lottie (Bodymovin) JSON animation, rendered as SVG. If the file has markers named 'in', 'loop' and 'out', Play runs 'in' and then repeats 'loop' (or holds the last 'in' frame) and Stop runs 'out'. Without markers the whole animation is played (looped or once) and Stop fades it out. Size and position place the animation on screen; transparent areas stay transparent.",
+  "author": {
+    "name": "Emisora"
+  },
+  "main": "graphic.mjs",
+  "supportsRealTime": true,
+  "supportsNonRealTime": false,
+  "stepCount": 1,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "lottieFile": {
+        "type": "string",
+        "title": "Lottie file",
+        "default": "./assets/sample.json",
+        "gddType": "file-path",
+        "gddOptions": {
+          "extensions": [
+            "json"
+          ]
+        },
+        "order": 1
+      },
+      "loop": {
+        "type": "string",
+        "title": "Playback",
+        "description": "loop: repeat the whole animation until Stop. once: play it once and hold the last frame. Files with 'in'/'loop'/'out' markers follow their markers ('loop' repeats until Stop). For an animation that clears itself, use the 'Lottie Player (play once)' graphic.",
+        "enum": [
+          "loop",
+          "once"
+        ],
+        "gddType": "select",
+        "gddOptions": {
+          "labels": {
+            "loop": "Loop",
+            "once": "Play once (keep last frame)"
+          }
+        },
+        "default": "loop",
+        "order": 2
+      },
+      "speed": {
+        "type": "string",
+        "title": "Speed (1 = normal)",
+        "default": "1",
+        "order": 3
+      },
+      "size": {
+        "type": "string",
+        "title": "Size in % of the screen",
+        "description": "The animation is fitted (keeping its aspect ratio) into a box of this size; 100 = full screen.",
+        "default": "100",
+        "order": 4
+      },
+      "position": {
+        "type": "string",
+        "title": "Position",
+        "enum": [
+          "center",
+          "top",
+          "bottom",
+          "left",
+          "right",
+          "top-left",
+          "top-right",
+          "bottom-left",
+          "bottom-right"
+        ],
+        "gddType": "select",
+        "gddOptions": {
+          "labels": {
+            "center": "Center",
+            "top": "Top",
+            "bottom": "Bottom",
+            "left": "Left",
+            "right": "Right",
+            "top-left": "Top Left",
+            "top-right": "Top Right",
+            "bottom-left": "Bottom Left",
+            "bottom-right": "Bottom Right"
+          }
+        },
+        "default": "center",
+        "order": 5
+      }
+    }
+  },
+  "customActions": [
+    {
+      "id": "restart",
+      "name": "Restart",
+      "description": "Play the animation (or its 'in' part) again from the start."
+    }
+  ]
+}

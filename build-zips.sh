@@ -11,11 +11,13 @@ mkdir -p "$OUT"
 if [ $# -gt 0 ]; then
   dirs=("${@%/}")
 else
-  mapfile -t dirs < <(find . -mindepth 2 -maxdepth 2 -name '*.ograf.json' -printf '%h\n' | sed 's|^\./||' | sort)
+  mapfile -t dirs < <(find . -mindepth 2 -maxdepth 2 -name '*.ograf.json' -printf '%h\n' | sed 's|^\./||' | sort -u)
 fi
 
 for dir in "${dirs[@]}"; do
-  manifest=$(find "$dir" -maxdepth 1 -name '*.ograf.json' | head -n 1)
+  # a folder may hold several manifests; the version comes from <folder>.ograf.json if present
+  manifest="$dir/$(basename "$dir").ograf.json"
+  [ -f "$manifest" ] || manifest=$(find "$dir" -maxdepth 1 -name '*.ograf.json' | sort | head -n 1)
   if [ -z "$manifest" ]; then
     echo "skip: $dir (no *.ograf.json manifest)" >&2
     continue
