@@ -1,7 +1,6 @@
 // DTB Wheel of Fortune - OGraf web component
-const LINES = 15;
-const KEYS = ["logo", "theme", "backgroundColor", "textColor", "accentColor", "title", "position", "layout", "spinDuration"];
-for (let i = 1; i <= LINES; i++) KEYS.push(`line${i}`);
+const MAX_OUTCOMES = 15;
+const KEYS = ["logo", "theme", "backgroundColor", "textColor", "accentColor", "title", "position", "layout", "spinDuration", "outcomes"];
 const POSITIONS = ["left", "center", "right"];
 
 // Fallback colours, used only if the theme stylesheet does not define a colour (e.g. it failed to load)
@@ -17,38 +16,20 @@ function assetUrl(path, fallback) {
   catch { return new URL(fallback, import.meta.url).href; }
 }
 
-const COLOR_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
-
-// "count text" -> { count, color|null, text } ; null for empty/invalid lines.
-// A "#rrggbb" word right after the count still overrides the theme colour (kept for older data).
-function parseLine(raw) {
-  const m = String(raw ?? "").trim().match(/^(\d+)\s*(.*)$/s);
-  if (!m) return null;
-  const count = parseInt(m[1], 10);
-  if (!(count > 0)) return null;
-  let rest = m[2].trim(), color = null;
-  if (rest.startsWith("#")) {
-    const mm = rest.match(/^(#\S*)\s*(.*)$/s);
-    color = COLOR_RE.test(mm[1]) ? mm[1] : null; // invalid colour -> palette colour, token is still consumed
-    rest = mm[2].trim();
-  }
-  return { count, color, text: rest };
-}
-
-// Parses the 15 input lines into outcomes { count, color, text } and picks the theme ramp size.
-// Lines without an explicit colour take the colours of the ramp for their number, in line order.
+// Outcomes array [{ count, label }] -> outcomes { count, color, text } and the theme ramp size.
+// Entries without a valid count (> 0) are skipped; colours come from the theme ramp, in array order.
 function buildOutcomes(data) {
+  const list = Array.isArray(data.outcomes) ? data.outcomes : [];
   const parsed = [];
-  for (let i = 1; i <= LINES; i++) {
-    const p = parseLine(data[`line${i}`]);
-    if (p) parsed.push(p);
+  for (const e of list) {
+    const count = Math.floor(Number(e?.count));
+    if (count > 0) parsed.push({ count, text: String(e?.label ?? "").trim() });
+    if (parsed.length >= MAX_OUTCOMES) break;
   }
-  const ramp = Math.min(Math.max(parsed.filter((p) => !p.color).length, 2), MAX_RAMP);
-  let k = 0;
+  const ramp = Math.min(Math.max(parsed.length, 2), MAX_RAMP);
   const outcomes = parsed.map((p, n) => {
-    let color = p.color;
-    if (!color) { k++; color = `var(--c${k}, ${PALETTE[(k - 1) % PALETTE.length]})`; }
-    return { count: p.count, color, text: p.text || `Option ${n + 1}` };
+    const k = n + 1;
+    return { count: p.count, color: `var(--c${k}, ${PALETTE[(k - 1) % PALETTE.length]})`, text: p.text || `Option ${k}` };
   });
   return { outcomes, ramp };
 }
