@@ -23,7 +23,7 @@ for dir in "${dirs[@]}"; do
     continue
   fi
   version=$(sed -n 's/^[[:space:]]*"version":[[:space:]]*"\([^"]*\)".*/\1/p' "$manifest" | head -n 1)
-  zipfile="$OUT/$dir${version:+-$version}.zip"
+  zipfile="$OUT/$dir${version:+-$version}.ograf.zip"
   rm -f "$zipfile"
   zip -rq "$zipfile" "$dir" -x '*/.*' '*~' '*.bak'
   echo "built: $zipfile"
