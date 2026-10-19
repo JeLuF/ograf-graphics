@@ -6,12 +6,8 @@
 // clears the screen by itself and then resolves playAction with currentStep undefined (= end of the graphic).
 import lottie from "./lib/lottie_svg.min.js";
 
-const KEYS = ["lottieFile", "loop", "speed", "size", "position"];
+const KEYS = ["lottieFile", "loop", "speed", "size", "x", "y"];
 const DEFAULT_FILE = "./assets/sample.json";
-const POSITIONS = {
-  "center": "xMidYMid", "top": "xMidYMin", "bottom": "xMidYMax", "left": "xMinYMid", "right": "xMaxYMid",
-  "top-left": "xMinYMin", "top-right": "xMaxYMin", "bottom-left": "xMinYMax", "bottom-right": "xMaxYMax",
-};
 const FADE_MS = 400; // Stop without an "out" marker
 
 // Asset path from a field, resolved relative to this module (absolute URLs pass through).
@@ -54,7 +50,7 @@ export default class LottiePlayer extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = TEMPLATE;
     this.stage = this.shadowRoot.querySelector(".stage");
-    this.data = { lottieFile: DEFAULT_FILE, loop: "loop", speed: "1", size: "100", position: "center" };
+    this.data = { lottieFile: DEFAULT_FILE, loop: "loop", speed: "1", size: "100", x: "50", y: "50" };
     this.anim = null;
     this.url = null;
     this.phase = "idle"; // idle | in | loop | hold | out | fade | once
@@ -88,7 +84,7 @@ export default class LottiePlayer extends HTMLElement {
       loop: false,
       autoplay: false,
       animationData: json,
-      rendererSettings: { preserveAspectRatio: `${this._align()} meet`, progressiveLoad: false },
+      rendererSettings: { preserveAspectRatio: `xMidYMid meet`, progressiveLoad: false },
     });
     await new Promise((resolve) => {
       const done = () => { clearTimeout(t); resolve(); };
@@ -108,22 +104,15 @@ export default class LottiePlayer extends HTMLElement {
 
   // ---- layout ----
 
-  _align() {
-    const p = String(this.data.position ?? "").trim().toLowerCase().replace(/[\s_]+/g, "-");
-    return POSITIONS[p] ?? POSITIONS.center;
-  }
-
   _applyLayout() {
     const size = num(this.data.size, 100, 1, 400);
     const s = this.stage.style;
     s.width = `${size}%`;
     s.height = `${size}%`;
-    // keep the box on the chosen edge/corner; the SVG aligns inside the box the same way
-    const [, x, y] = this._align().match(/^x(Min|Mid|Max)Y(Min|Mid|Max)$/);
-    const offset = { Min: 0, Mid: (100 - size) / 2, Max: 100 - size };
-    s.left = `${offset[x]}%`;
-    s.top = `${offset[y]}%`;
-    this.stage.querySelector("svg")?.setAttribute("preserveAspectRatio", `${this._align()} meet`);
+    // x/y = centre of the box in % of the screen (50/50 = centred); the SVG is fitted into the box
+    s.left = `${num(this.data.x, 50, -500, 600) - size / 2}%`;
+    s.top = `${num(this.data.y, 50, -500, 600) - size / 2}%`;
+    this.stage.querySelector("svg")?.setAttribute("preserveAspectRatio", `xMidYMid meet`);
   }
 
   // ---- frame driving (absolute frames; lottie's goToAndStop counts from ip) ----
