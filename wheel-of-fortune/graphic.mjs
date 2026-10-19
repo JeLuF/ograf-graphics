@@ -1,5 +1,4 @@
 // DTB Wheel of Fortune - OGraf web component
-const MAX_OUTCOMES = 15;
 const KEYS = ["logo", "theme", "backgroundColor", "textColor", "accentColor", "title", "position", "layout", "spinDuration", "outcomes"];
 const POSITIONS = ["left", "center", "right"];
 
@@ -24,7 +23,6 @@ function buildOutcomes(data) {
   for (const e of list) {
     const count = Math.floor(Number(e?.count));
     if (count > 0) parsed.push({ count, text: String(e?.label ?? "").trim() });
-    if (parsed.length >= MAX_OUTCOMES) break;
   }
   const ramp = Math.min(Math.max(parsed.length, 2), MAX_RAMP);
   const outcomes = parsed.map((p, n) => {

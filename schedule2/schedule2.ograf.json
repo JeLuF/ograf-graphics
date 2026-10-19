@@ -1,9 +1,9 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
   "id": "schedule2",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "name": "Schedule Panel (2 Tracks)",
-  "description": "Upcoming schedule with two parallel tracks. 15 input lines ('time event1 (subline1) - event2 (subline2)'), the first 8 non-empty lines are shown, evenly distributed vertically. White panel, black text, logo. A footer text area at the bottom is configurable. Slides in from the right, one third of the screen width. A delay field (minutes, may be negative) is added to every displayed time.",
+  "description": "Upcoming schedule with two parallel tracks. array input (time, event1, subline1, event2, subline2), the first 8 non-empty entries are shown, evenly distributed vertically. White panel, black text, logo. A footer text area at the bottom is configurable. Slides in from the right, one third of the screen width. A delay field (minutes, may be negative) is added to every displayed time.",
   "author": {
     "name": "Emisora"
   },
@@ -52,7 +52,7 @@
         "title": "Delay in minutes (negative = ahead of schedule)",
         "default": "0",
         "order": 1,
-	"hidden": true
+        "hidden": true
       },
       "title": {
         "type": "string",
@@ -78,115 +78,10 @@
         "default": "All times are estimates and might change.",
         "order": 5
       },
-      "line1": {
-        "type": "string",
-        "title": "Line 1",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "10:00 Girls 11/12 (Quali group 1) - Boys 13/14 (Quali)",
-        "order": 6
-      },
-      "line2": {
-        "type": "string",
-        "title": "Line 2",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "10:40 Girls 11/12 (Quali group 2) - Boys 11/12 (Quali)",
-        "order": 7
-      },
-      "line3": {
-        "type": "string",
-        "title": "Line 3",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "11:20 Girls 13/14 (Quali) - Girls 15/16 (Quali)",
-        "order": 8
-      },
-      "line4": {
-        "type": "string",
-        "title": "Line 4",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 9
-      },
-      "line5": {
-        "type": "string",
-        "title": "Line 5",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 10
-      },
-      "line6": {
-        "type": "string",
-        "title": "Line 6",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 11
-      },
-      "line7": {
-        "type": "string",
-        "title": "Line 7",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 12
-      },
-      "line8": {
-        "type": "string",
-        "title": "Line 8",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 13
-      },
-      "line9": {
-        "type": "string",
-        "title": "Line 9",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 14
-      },
-      "line10": {
-        "type": "string",
-        "title": "Line 10",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 15
-      },
-      "line11": {
-        "type": "string",
-        "title": "Line 11",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 16
-      },
-      "line12": {
-        "type": "string",
-        "title": "Line 12",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 17
-      },
-      "line13": {
-        "type": "string",
-        "title": "Line 13",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 18
-      },
-      "line14": {
-        "type": "string",
-        "title": "Line 14",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 19
-      },
-      "line15": {
-        "type": "string",
-        "title": "Line 15",
-        "description": "Format: time event1 (subline1) - event2 (subline2). Empty lines are skipped; only the first 8 non-empty lines are shown.",
-        "default": "",
-        "order": 20
-      },
       "backgroundColor": {
         "type": "string",
         "title": "Background colour",
-        "order": 21,
+        "order": 7,
         "default": "#ffffff",
         "gddType": "color-rrggbb",
         "pattern": "^#[0-9a-f]{6}$"
@@ -194,7 +89,7 @@
       "textColor": {
         "type": "string",
         "title": "Text colour",
-        "order": 22,
+        "order": 8,
         "default": "#000000",
         "gddType": "color-rrggbb",
         "pattern": "^#[0-9a-f]{6}$"
@@ -202,10 +97,69 @@
       "accentColor": {
         "type": "string",
         "title": "Accent colour",
-        "order": 23,
+        "order": 9,
         "default": "#e30613",
         "gddType": "color-rrggbb",
         "pattern": "^#[0-9a-f]{6}$"
+      },
+      "schedule": {
+        "type": "array",
+        "title": "Schedule",
+        "description": "Empty entries are skipped and only the first 8 non-empty ones are shown.",
+        "default": [
+          {
+            "time": "10:00",
+            "event1": "Girls 11/12",
+            "subline1": "Quali group 1",
+            "event2": "Boys 13/14",
+            "subline2": "Quali"
+          },
+          {
+            "time": "10:40",
+            "event1": "Girls 11/12",
+            "subline1": "Quali group 2",
+            "event2": "Boys 11/12",
+            "subline2": "Quali"
+          },
+          {
+            "time": "11:20",
+            "event1": "Girls 13/14",
+            "subline1": "Quali",
+            "event2": "Girls 15/16",
+            "subline2": "Quali"
+          }
+        ],
+        "items": {
+          "type": "object",
+          "properties": {
+            "time": {
+              "type": "string",
+              "title": "Time",
+              "default": ""
+            },
+            "event1": {
+              "type": "string",
+              "title": "Event 1",
+              "default": ""
+            },
+            "subline1": {
+              "type": "string",
+              "title": "Subline 1",
+              "default": ""
+            },
+            "event2": {
+              "type": "string",
+              "title": "Event 2",
+              "default": ""
+            },
+            "subline2": {
+              "type": "string",
+              "title": "Subline 2",
+              "default": ""
+            }
+          }
+        },
+        "order": 6
       }
     }
   }

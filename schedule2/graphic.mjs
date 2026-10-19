@@ -1,8 +1,6 @@
 // DTB Schedule Panel - OGraf web component
-const LINES = 15; // input fields
-const ROWS = 8;   // rows shown (first 8 non-empty lines)
-const KEYS = ["logo", "backgroundColor", "textColor", "accentColor", "delay", "title", "leftHeader", "rightHeader", "footer"];
-for (let i = 1; i <= LINES; i++) KEYS.push(`line${i}`);
+const ROWS = 8;   // rows shown (first 8 non-empty entries)
+const KEYS = ["logo", "backgroundColor", "textColor", "accentColor", "delay", "title", "leftHeader", "rightHeader", "footer", "schedule"];
 
 // Shifts a H:MM / HH:MM time by `delay` minutes (may be negative, wraps around midnight).
 // Keeps the leading-zero style of the original hour; unparsable values are returned unchanged.
@@ -15,27 +13,12 @@ function shiftTime(time, delay) {
   return `${hh}:${String(min).padStart(2, "0")}`;
 }
 
-// Parses "time event1 (subline1) - event2 (subline2)".
-// Time = first word. The separator is the dash that follows the first closing bracket;
-// without brackets, the first " - " is used. Sublines are optional when parsing.
-function parseLine(raw) {
-  const text = String(raw ?? "").trim();
-  if (!text) return null;
-  const m = text.match(/^(\S+)\s*(.*)$/);
-  const time = m[1];
-  const rest = m[2];
-  let left = rest, right = "";
-  const sep = rest.match(/\)\s*-\s*/) || rest.match(/\s-\s/);
-  if (sep) {
-    const cut = sep.index + (sep[0].includes(")") ? 1 : 0);
-    left = rest.slice(0, cut);
-    right = rest.slice(sep.index + sep[0].length);
-  }
-  const part = (str) => {
-    const mm = str.trim().match(/^(.*?)\s*\(([^)]*)\)\s*$/);
-    return mm ? { event: mm[1].trim(), sub: mm[2].trim() } : { event: str.trim(), sub: "" };
-  };
-  return { time, left: part(left), right: part(right) };
+// Schedule entry { time, event1, subline1, event2, subline2 } -> row data; null if all fields are empty.
+function parseEntry(e) {
+  const t = (v) => String(v ?? "").trim();
+  const time = t(e?.time), left = { event: t(e?.event1), sub: t(e?.subline1) }, right = { event: t(e?.event2), sub: t(e?.subline2) };
+  if (!time && !left.event && !left.sub && !right.event && !right.sub) return null;
+  return { time, left, right };
 }
 
 const DEFAULT_LOGO = "./assets/logo.svg";
@@ -145,11 +128,12 @@ export default class DtbSchedulePanel extends HTMLElement {
     $(".footer").textContent = d.footer ?? "";
     const n = Math.round(Number(String(d.delay ?? "0").replace(",", ".")));
     const delay = Number.isFinite(n) ? n : 0;
-    // First 8 non-empty lines out of the 15 inputs; each gets 1/8 of the height.
+    // First 8 non-empty entries of the schedule array; each gets 1/8 of the height.
     const parsed = [];
-    for (let i = 1; i <= LINES && parsed.length < ROWS; i++) {
-      const p = parseLine(d[`line${i}`]);
+    for (const e of Array.isArray(d.schedule) ? d.schedule : []) {
+      const p = parseEntry(e);
       if (p) parsed.push(p);
+      if (parsed.length >= ROWS) break;
     }
     let lastRow = null;
     for (let i = 1; i <= ROWS; i++) {

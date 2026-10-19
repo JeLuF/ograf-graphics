@@ -1,9 +1,9 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
   "id": "wheel-of-fortune",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "name": "Wheel of Fortune",
-  "description": "Wheel of fortune with up to 15 outcomes (array input of count and label, colours from a selectable theme). Segment size is proportional to the count, so the chance of winning equals the share. Includes a colour legend and shows the winner after the spin. Play shows the wheel, the next step (or the Spin action) spins it, Stop hides it. Optional distributed layout: equal-sized areas, repeated by share count and spread around the wheel.",
+  "description": "Wheel of fortune with any number of outcomes (array input of count and label, colours from a selectable theme). Segment size is proportional to the count, so the chance of winning equals the share. Includes a colour legend and shows the winner after the spin. Play shows the wheel, the next step (or the Spin action) spins it, Stop hides it. Optional distributed layout: equal-sized areas, repeated by share count and spread around the wheel.",
   "author": {
     "name": "DTB"
   },
@@ -89,8 +89,7 @@
       "outcomes": {
         "type": "array",
         "title": "Outcomes",
-        "description": "Up to 15 outcomes. Segment size is proportional to the count; colours come from the visual theme. Entries with an empty label or a count below 1 are ignored.",
-        "maxItems": 15,
+        "description": "Segment size is proportional to the count; colours come from the visual theme. Entries with an empty label or a count below 1 are ignored.",
         "default": [
           {
             "count": 1,
