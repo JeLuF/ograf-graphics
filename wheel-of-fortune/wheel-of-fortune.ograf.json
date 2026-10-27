@@ -1,7 +1,7 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
   "id": "wheel-of-fortune",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "name": "Wheel of Fortune",
   "description": "Wheel of fortune with any number of outcomes (array input of count and label, colours from a selectable theme). Segment size is proportional to the count, so the chance of winning equals the share. Includes a colour legend and shows the winner after the spin. Play shows the wheel, the next step (or the Spin action) spins it, Stop hides it. Optional distributed layout: equal-sized areas, repeated by share count and spread around the wheel.",
   "author": {
@@ -164,6 +164,20 @@
         "title": "Visual Theme",
         "default": "./assets/rainbow.css",
         "order": 9
+      },
+      "slideInDuration": {
+        "type": "number",
+        "title": "Slide in duration (seconds)",
+        "default": 0.6,
+        "minimum": 0,
+        "order": 10
+      },
+      "slideOutDuration": {
+        "type": "number",
+        "title": "Slide out duration (seconds)",
+        "default": 0.6,
+        "minimum": 0,
+        "order": 11
       }
     }
   },

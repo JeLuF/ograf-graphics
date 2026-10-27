@@ -1,7 +1,7 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
   "id": "schedule2",
-  "version": "1.7.0",
+  "version": "1.7.2",
   "name": "Schedule Panel (2 Tracks)",
   "description": "Upcoming schedule with two parallel tracks. array input (time, event1, subline1, event2, subline2), 8 non-empty entries are shown per page, evenly distributed vertically; the \"Next page\" action shows the following 8 and wraps to page 1 after the last page. White panel, black text, logo. A footer text area at the bottom is configurable. Slides in from the right, one third of the screen width. A delay field (minutes, may be negative) is added to every displayed time.",
   "author": {

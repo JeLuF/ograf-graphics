@@ -1,0 +1,51 @@
+{
+  "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
+  "id": "mov.ograf.logo-tile-transition",
+  "version": "1.1.0",
+  "name": "Checkerboard Transition",
+  "description": "Playful full-screen scene transition with an SVG logo (zero-step graphic, played once): a wave of rounded red tiles shaped like the logo pops in from the screen centre while the logo drops in with a somersault and bounces; it sways while the screen is covered, then leaps out with a backflip and the tiles shrink away. Play runs the whole sequence once and the graphic animates out by itself; Stop is optional and ends the hold early.",
+  "main": "graphic.mjs",
+  "supportsRealTime": true,
+  "supportsNonRealTime": false,
+  "stepCount": 0,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "logo": {
+        "type": "string",
+        "title": "Logo",
+        "default": "./assets/logo.svg",
+        "gddType": "file-path/image-path",
+        "gddOptions": {
+          "extensions": [
+            "jpg",
+            "png",
+            "jpeg",
+            "webp",
+            "gif",
+            "svg"
+          ]
+        },
+        "order": 0
+      },
+      "holdSeconds": {
+        "type": "string",
+        "title": "Hold: seconds the logo stays after landing (screen fully covered)",
+        "default": "1.5",
+        "order": 1
+      },
+      "tileColumns": {
+        "type": "string",
+        "title": "Tile columns (3-20; more columns = smaller tiles)",
+        "default": "8",
+        "order": 2
+      },
+      "heightPercent": {
+        "type": "string",
+        "title": "Logo height in % of screen height",
+        "default": "70",
+        "order": 3
+      }
+    }
+  }
+}

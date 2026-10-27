@@ -1,5 +1,5 @@
 // DTB Warmup Countdown - OGraf web component
-const KEYS = ["logo", "backgroundColor", "textColor", "accentColor", "title", "subtitle", "position", "duration", "endTime", "finishedText"];
+const KEYS = ["logo", "backgroundColor", "textColor", "accentColor", "title", "subtitle", "position", "duration", "endTime", "finishedText", "slideInDuration", "slideOutDuration"];
 const POSITIONS = ["top-left", "bottom-left", "top-right", "bottom-right"];
 
 const DEFAULT_LOGO = "./assets/logo.svg";
@@ -46,13 +46,15 @@ const TEMPLATE = `
     display: flex; align-items: stretch; overflow: hidden;
     background: var(--bg); color: var(--fg); box-shadow: 0 0.3vw 1vw rgba(0,0,0,.35);
     opacity: 0;
-    transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .35s ease;
+    /* slide out: fade only during the last .35s of the slide */
+    transition: transform var(--out, .5s) cubic-bezier(.2,.8,.2,1), opacity .35s ease max(0s, calc(var(--out, .5s) - .35s));
   }
   .card.top    { top: 4%; }
   .card.bottom { bottom: 4%; }
   .card.left   { left: 3%;  transform: translateX(-120%); }
   .card.right  { right: 3%; transform: translateX(120%); }
-  .card.visible { opacity: 1; transform: translateX(0); }
+  .card.visible { opacity: 1; transform: translateX(0);
+    transition: transform var(--in, .5s) cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
   .card.instant { transition: none; }
   .logo { flex: none; width: 4.6vw; padding: .8vw 0 .8vw 1vw; display: flex; align-items: center; justify-content: center; }
   .logo img { width: 3.6vw; height: 3.6vw; display: block; object-fit: contain; }
@@ -150,6 +152,10 @@ export default class DtbWarmupCountdown extends HTMLElement {
     this.card.classList.toggle("instant", !!skip);
     void this.card.offsetWidth;
     this.card.classList.toggle("visible", visible);
+    // Resolve only once the slide has finished: the host may remove the graphic as soon as the action resolves.
+    if (skip) return Promise.resolve();
+    const secs = parseFloat(getComputedStyle(this.card).transitionDuration) || 0;
+    return new Promise((r) => setTimeout(r, secs * 1000 + (visible ? 0 : 50)));
   }
 
   _merge(data) {
@@ -159,6 +165,10 @@ export default class DtbWarmupCountdown extends HTMLElement {
     this._applyPosition();
     this._applyLogo();
     applyColors(this, this.data);
+    for (const [key, prop] of [["slideInDuration", "--in"], ["slideOutDuration", "--out"]]) {
+      const v = parseFloat(String(this.data[key] ?? "").replace(",", "."));
+      if (Number.isFinite(v) && v >= 0) this.style.setProperty(prop, `${v}s`); else this.style.removeProperty(prop);
+    }
     if (timingChanged && this.running) this._start(); else this._tick();
   }
 
@@ -180,14 +190,14 @@ export default class DtbWarmupCountdown extends HTMLElement {
 
   async playAction(params) {
     this._start();
-    this._setVisible(true, params?.skipAnimation);
+    await this._setVisible(true, params?.skipAnimation);
     return { statusCode: 200 };
   }
 
   async stopAction(params) {
-    this._setVisible(false, params?.skipAnimation);
+    await this._setVisible(false, params?.skipAnimation);
     // stop ticking once the slide-out has finished
-    setTimeout(() => { if (!this.card.classList.contains("visible")) this._halt(); }, params?.skipAnimation ? 0 : 700);
+    if (!this.card.classList.contains("visible")) this._halt();
     return { statusCode: 200 };
   }
 

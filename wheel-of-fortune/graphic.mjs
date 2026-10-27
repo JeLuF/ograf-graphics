@@ -1,5 +1,5 @@
 // DTB Wheel of Fortune - OGraf web component
-const KEYS = ["logo", "theme", "backgroundColor", "textColor", "accentColor", "title", "position", "layout", "spinDuration", "outcomes"];
+const KEYS = ["logo", "theme", "backgroundColor", "textColor", "accentColor", "title", "position", "layout", "spinDuration", "outcomes", "slideInDuration", "slideOutDuration"];
 const POSITIONS = ["left", "center", "right"];
 
 // Fallback colours, used only if the theme stylesheet does not define a colour (e.g. it failed to load)
@@ -151,12 +151,14 @@ const TEMPLATE = `
     position: absolute; top: 0; bottom: 0; height: fit-content; margin: auto 0; width: 30vw;
     box-sizing: border-box; padding: 1.4vw 1.6vw 1.5vw;
     background: var(--bg); color: var(--fg); box-shadow: 0 0.3vw 1vw rgba(0,0,0,.35);
-    opacity: 0; transition: transform .6s cubic-bezier(.2,.8,.2,1), opacity .4s ease;
+    /* slide out: fade only during the last .4s of the slide */
+    opacity: 0; transition: transform var(--out, .6s) cubic-bezier(.2,.8,.2,1), opacity .4s ease max(0s, calc(var(--out, .6s) - .4s));
   }
   .card.left   { left: 3%;  transform: translateX(-130%); }
   .card.right  { right: 3%; transform: translateX(130%); }
   .card.center { left: 0; right: 0; margin: auto; transform: translateY(8vw) scale(.92); }
-  .card.visible { opacity: 1; transform: none; }
+  .card.visible { opacity: 1; transform: none;
+    transition: transform var(--in, .6s) cubic-bezier(.2,.8,.2,1), opacity .4s ease; }
   .card.instant { transition: none; }
   .header { display: flex; align-items: center; gap: 1vw; }
   .logo img { width: 3.2vw; height: 3.2vw; display: block; object-fit: contain; }
@@ -295,6 +297,10 @@ export default class DtbWheelOfFortune extends HTMLElement {
       return;
     }
     if (data && typeof data === "object") for (const k of KEYS) if (k in data) this.data[k] = data[k];
+    for (const [key, prop] of [["slideInDuration", "--in"], ["slideOutDuration", "--out"]]) {
+      const v = parseFloat(String(this.data[key] ?? "").replace(",", "."));
+      if (Number.isFinite(v) && v >= 0) this.style.setProperty(prop, `${v}s`); else this.style.removeProperty(prop);
+    }
     this.winner = -1;
     this._render();
   }
@@ -333,6 +339,14 @@ export default class DtbWheelOfFortune extends HTMLElement {
     this.card.classList.toggle("instant", !!skip);
     void this.card.offsetWidth;
     this.card.classList.add("visible");
+    return this._slideDone(true, skip);
+  }
+
+  _slideDone(visible, skip) {
+    // Resolve only once the slide has finished: the host may remove the graphic as soon as the action resolves.
+    if (skip) return Promise.resolve();
+    const secs = parseFloat(getComputedStyle(this.card).transitionDuration) || 0;
+    return new Promise((r) => setTimeout(r, secs * 1000 + (visible ? 0 : 50)));
   }
 
   _hide(skip) {
@@ -340,16 +354,16 @@ export default class DtbWheelOfFortune extends HTMLElement {
     this.card.classList.toggle("instant", !!skip);
     void this.card.offsetWidth;
     this.card.classList.remove("visible");
-    // once it has slid out: stop any spin, clear the result, apply queued data
     clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
+    // once it has slid out: stop any spin, clear the result, apply queued data
+    return this._slideDone(false, skip).then(() => {
       if (this.visible) return;
       this.spinning = false;
       this.winner = -1;
       const pending = this.pending;
       this.pending = null;
       if (pending) this._merge(pending); else this._renderResult();
-    }, skip ? 0 : 700);
+    });
   }
 
   async load(params) {
@@ -370,22 +384,21 @@ export default class DtbWheelOfFortune extends HTMLElement {
 
   // First play shows the wheel; every further play (the next step) spins it.
   async playAction(params) {
-    if (!this.visible) this._show(params?.skipAnimation);
+    if (!this.visible) await this._show(params?.skipAnimation);
     else this._spin();
     return { statusCode: 200 };
   }
 
   async stopAction(params) {
-    this._hide(params?.skipAnimation);
+    await this._hide(params?.skipAnimation);
     return { statusCode: 200 };
   }
 
   async customAction(params) {
     if (params?.id === "spin") {
       if (!this.visible) {
-        this._show(params?.skipAnimation);
-        clearTimeout(this.timer);
-        this.timer = setTimeout(() => this._spin(), params?.skipAnimation ? 0 : 800);
+        await this._show(params?.skipAnimation);
+        this._spin();
       } else {
         this._spin();
       }

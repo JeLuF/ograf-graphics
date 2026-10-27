@@ -71,7 +71,7 @@ const TEMPLATE = `
   .row {
     align-items: center; min-height: 0; padding: 0; border-bottom: .08vw solid color-mix(in srgb, var(--fg) 19%, var(--bg));
     opacity: 0; transform: translateX(2vw);
-    transition: opacity .3s ease, transform .3s ease;
+    transition: opacity .3s ease var(--out, .6s), transform .3s ease var(--out, .6s); /* hide only after the panel has slid out */
   }
   .row.empty { visibility: hidden; }
   .row.last { border-bottom: none; }
@@ -88,7 +88,7 @@ const TEMPLATE = `
   .footer {
     margin-top: .8vw; padding-top: .8vw; border-top: .08vw solid color-mix(in srgb, var(--fg) 19%, var(--bg));
     font-size: 1vw; line-height: 1.25; color: color-mix(in srgb, var(--fg) 73%, var(--bg));
-    opacity: 0; transition: opacity .3s ease;
+    opacity: 0; transition: opacity .3s ease var(--out, .6s);
   }
   .footer:empty { display: none; }
   .visible .footer { opacity: 1; transition: opacity .5s ease .9s; }
@@ -161,6 +161,11 @@ export default class DtbSchedulePanel extends HTMLElement {
     this.panel.classList.toggle("instant", !!skip);
     void this.panel.offsetWidth; // flush so 'instant' applies before the change
     this.panel.classList.toggle("visible", visible);
+    if (skip) return;
+    // Resolve only once the slide has finished: the host may remove the graphic as soon as stopAction resolves.
+    const secs = parseFloat(getComputedStyle(this.panel).transitionDuration) || 0;
+    const ms = secs * 1000 + (visible ? 0 : 50);
+    return new Promise((r) => setTimeout(r, ms));
   }
 
   _merge(data) {
@@ -188,12 +193,12 @@ export default class DtbSchedulePanel extends HTMLElement {
   }
 
   async playAction(params) {
-    this._setVisible(true, params?.skipAnimation);
+    await this._setVisible(true, params?.skipAnimation);
     return { statusCode: 200 };
   }
 
   async stopAction(params) {
-    this._setVisible(false, params?.skipAnimation);
+    await this._setVisible(false, params?.skipAnimation);
     return { statusCode: 200 };
   }
 
