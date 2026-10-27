@@ -1,9 +1,9 @@
 {
   "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
   "id": "schedule2",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "name": "Schedule Panel (2 Tracks)",
-  "description": "Upcoming schedule with two parallel tracks. array input (time, event1, subline1, event2, subline2), the first 8 non-empty entries are shown, evenly distributed vertically. White panel, black text, logo. A footer text area at the bottom is configurable. Slides in from the right, one third of the screen width. A delay field (minutes, may be negative) is added to every displayed time.",
+  "description": "Upcoming schedule with two parallel tracks. array input (time, event1, subline1, event2, subline2), 8 non-empty entries are shown per page, evenly distributed vertically; the \"Next page\" action shows the following 8 and wraps to page 1 after the last page. White panel, black text, logo. A footer text area at the bottom is configurable. Slides in from the right, one third of the screen width. A delay field (minutes, may be negative) is added to every displayed time.",
   "author": {
     "name": "Emisora"
   },
@@ -102,10 +102,24 @@
         "gddType": "color-rrggbb",
         "pattern": "^#[0-9a-f]{6}$"
       },
+      "slideInDuration": {
+        "type": "number",
+        "title": "Slide in duration (seconds)",
+        "default": 0.6,
+        "minimum": 0,
+        "order": 10
+      },
+      "slideOutDuration": {
+        "type": "number",
+        "title": "Slide out duration (seconds)",
+        "default": 0.6,
+        "minimum": 0,
+        "order": 11
+      },
       "schedule": {
         "type": "array",
         "title": "Schedule",
-        "description": "Empty entries are skipped and only the first 8 non-empty ones are shown.",
+        "description": "Empty entries are skipped. 8 entries are shown per page; use the \"Next page\" action for more.",
         "default": [
           {
             "time": "10:00",
@@ -162,5 +176,13 @@
         "order": 6
       }
     }
-  }
+  },
+  "customActions": [
+    {
+      "id": "nextPage",
+      "name": "Next page",
+      "description": "Show the next 8 schedule entries (9-16, 17-24, ...). Wraps to page 1 after the last page.",
+      "schema": { "type": "object", "properties": {} }
+    }
+  ]
 }

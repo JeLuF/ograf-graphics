@@ -171,7 +171,8 @@
     {
       "id": "spin",
       "name": "Spin",
-      "description": "Spin the wheel (shows it first if it is hidden). Can be used repeatedly."
+      "description": "Spin the wheel (shows it first if it is hidden). Can be used repeatedly.",
+      "schema": { "type": "object", "properties": {} }
     }
   ]
 }

@@ -125,7 +125,8 @@
     {
       "id": "restart",
       "name": "Restart countdown",
-      "description": "Restart the countdown from the full duration (or the end time)."
+      "description": "Restart the countdown from the full duration (or the end time).",
+      "schema": { "type": "object", "properties": {} }
     }
   ]
 }

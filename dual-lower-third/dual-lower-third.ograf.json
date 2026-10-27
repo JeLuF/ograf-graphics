@@ -112,22 +112,26 @@
     {
       "id": "showLeft",
       "name": "Show left",
-      "description": "Show the left lower third (right side unchanged)."
+      "description": "Show the left lower third (right side unchanged).",
+      "schema": { "type": "object", "properties": {} }
     },
     {
       "id": "showRight",
       "name": "Show right",
-      "description": "Show the right lower third (left side unchanged)."
+      "description": "Show the right lower third (left side unchanged).",
+      "schema": { "type": "object", "properties": {} }
     },
     {
       "id": "showBoth",
       "name": "Show both",
-      "description": "Show the left and right lower thirds."
+      "description": "Show the left and right lower thirds.",
+      "schema": { "type": "object", "properties": {} }
     },
     {
       "id": "hide",
       "name": "Hide",
-      "description": "Hide all lower thirds."
+      "description": "Hide all lower thirds.",
+      "schema": { "type": "object", "properties": {} }
     }
   ]
 }

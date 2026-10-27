@@ -86,7 +86,8 @@
     {
       "id": "restart",
       "name": "Restart",
-      "description": "Play the animation (or its 'in' part) again from the start."
+      "description": "Play the animation (or its 'in' part) again from the start.",
+      "schema": { "type": "object", "properties": {} }
     }
   ]
 }
