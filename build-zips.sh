@@ -33,7 +33,7 @@ for dir in "${dirs[@]}"; do
   rm -rf "$STAGE/$dir"
   mkdir -p "$STAGE/$dir"
   cp -a "$dir/." "$STAGE/$dir/"
-  cp LICENSE "$STAGE/$dir/LICENSE"
+  cp LICENSE "$STAGE/$dir/LICENSE.txt"
   manifests=("$dir"/*.ograf.json)
   {
     if [ ${#manifests[@]} -eq 1 ]; then echo "# $(jq -r '.name' "$manifest")"; else echo "# $dir"; fi
