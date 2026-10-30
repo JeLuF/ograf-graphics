@@ -4,7 +4,7 @@
 // Sequence: a wave of rounded tiles (the logo's shape) pops in from the screen centre while the logo drops in with a
 // somersault and bounces; it sways and holds while the screen is fully covered; then the logo leaps out with a backflip
 // and the tiles shrink away from the centre outwards.
-const KEYS = ["logo", "holdSeconds", "tileColumns", "heightPercent"];
+const KEYS = ["logo", "tileColor1", "tileColor2", "hueRampX", "hueRampY", "holdSeconds", "tileColumns", "heightPercent"];
 
 const num = (v, fallback, min, max) => {
   const n = Number(String(v ?? "").replace(",", "."));
@@ -20,9 +20,31 @@ function logoUrl(path) {
   catch { return new URL(DEFAULT_LOGO, import.meta.url).href; }
 }
 
-const TILE_COLORS = ["#c8121f", "#b00f1b"]; // darker than the logo's red so the logo stands out
+const DEFAULT_TILE_COLORS = ["#c8121f", "#b00f1b"]; // darker than the logo's red so the logo stands out
+const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+// Checkerboard colours from the tileColor1 / tileColor2 fields; invalid or empty values fall back to the defaults.
+function tileColors(data) {
+  return ["tileColor1", "tileColor2"].map((k, i) => {
+    const c = String(data?.[k] ?? "").trim();
+    return HEX_RE.test(c) ? c : DEFAULT_TILE_COLORS[i];
+  });
+}
 const TILE_RADIUS = 0.06;                   // corner radius relative to tile size (same proportion as the logo)
 const TILE_OVERLAP = 1.06;                  // tiles overlap slightly so no gaps show between rounded corners
+
+// Shifts the hue of a #rgb / #rrggbb colour by `deg` degrees (other formats are returned unchanged).
+function shiftHue(hex, deg) {
+  if (!deg) return hex;
+  let h = hex.slice(1);
+  if (h.length === 3) h = [...h].map((c) => c + c).join("");
+  if (h.length !== 6) return hex;
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min, l = (max + min) / 2;
+  let hue = 0;
+  if (d) hue = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  const sat = d ? d / (1 - Math.abs(2 * l - 1)) : 0;
+  return `hsl(${(((hue * 60 + deg) % 360) + 360) % 360} ${sat * 100}% ${l * 100}%)`;
+}
 
 // ---------------------------------------------------------------------------------------------------- easing
 const clamp01 = (k) => Math.min(1, Math.max(0, k));
@@ -64,6 +86,7 @@ function buildTiles(W, H, cols) {
       const cx = (c + 0.5) * cell, cy = oy + (r + 0.5) * cell;
       tiles.push({
         cx, cy,
+        u: cols > 1 ? c / (cols - 1) : 0, v: rows > 1 ? r / (rows - 1) : 0, // 0..1 across the board
         d: Math.min(1, Math.hypot(cx - W / 2, cy - H / 2) / maxD), // 0 = centre, 1 = corner
         shade: (r + c) % 2,
         jIn: rand(i, 1) * T.tileJitter, jOut: rand(i, 2) * T.outJitter,
@@ -162,7 +185,7 @@ export default class LogoTileTransition extends HTMLElement {
     this.logoG = this.shadowRoot.querySelector(".logo");
     this.logoImg = this.logoG.querySelector("image");
     this.preload = new Image();
-    this.data = { holdSeconds: "1.5", tileColumns: "8", heightPercent: "70" };
+    this.data = { holdSeconds: 1.5, tileColumns: 8, heightPercent: 70 };
     this.running = false;
     this.aborted = false;
     this.raf = null;
@@ -184,6 +207,9 @@ export default class LogoTileTransition extends HTMLElement {
     const W = rect.width || 1920, H = rect.height || 1080;
     const cols = Math.round(num(this.data.tileColumns, 8, 3, 20));
     const { tiles, size } = buildTiles(W, H, cols);
+    const colors = tileColors(this.data);
+    // hue ramps: total degrees of hue shift from the left to the right / top to bottom edge (0 = none)
+    const rampX = num(this.data.hueRampX, 0, -360, 360), rampY = num(this.data.hueRampY, 0, -360, 360);
     this.stage.setAttribute("viewBox", `0 0 ${W} ${H}`);
     this.tilesG.replaceChildren();
     this.rects = tiles.map((tl) => {
@@ -191,7 +217,7 @@ export default class LogoTileTransition extends HTMLElement {
       r.setAttribute("x", String(-size / 2)); r.setAttribute("y", String(-size / 2));
       r.setAttribute("width", String(size)); r.setAttribute("height", String(size));
       r.setAttribute("rx", String(size * TILE_RADIUS));
-      r.setAttribute("fill", TILE_COLORS[tl.shade]);
+      r.setAttribute("fill", shiftHue(colors[tl.shade], rampX * tl.u + rampY * tl.v));
       this.tilesG.append(r);
       return r;
     });

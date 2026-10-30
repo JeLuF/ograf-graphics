@@ -1,0 +1,120 @@
+{
+  "$schema": "https://ograf.ebu.io/v1/specification/json-schemas/graphics/schema.json",
+  "id": "circle-image-reveal",
+  "version": "1.4.0",
+  "name": "Circle Image Reveal",
+  "description": "Transition to a full-screen image: N circles fly in from the chosen side (left, right, top, bottom or all sides), pulsing in size, and the image is visible inside them. Each circle starts to grow shortly before it stops moving, and the circles keep growing until the entire image is visible. Play shows the image and keeps it on screen; Stop (or a second Play) shrinks the circles back and flies them out to the chosen exit side before the graphic ends.",
+  "main": "graphic.mjs",
+  "supportsRealTime": true,
+  "supportsNonRealTime": false,
+  "stepCount": 1,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "image": {
+        "type": "string",
+        "title": "Full-screen image",
+        "description": "Image file or URL. It is scaled to cover the whole screen (cropped if the aspect ratio differs).",
+        "gddType": "file-path/image-path",
+        "gddOptions": {
+          "extensions": [
+            "png",
+            "jpg",
+            "jpeg",
+            "webp",
+            "gif",
+            "svg"
+          ]
+        },
+        "default": "",
+        "order": 1
+      },
+      "imageFit": {
+        "type": "string",
+        "title": "Image placement: zoom = fill the screen and crop, fit = whole image with bars, stretch = distort to the screen, center = original size, no scaling",
+        "enum": [
+          "zoom",
+          "fit",
+          "stretch",
+          "center"
+        ],
+        "default": "zoom",
+        "order": 2
+      },
+      "backgroundColor": {
+        "type": "string",
+        "title": "Background colour behind the image, with alpha (visible with fit / center; default transparent)",
+        "gddType": "color-rrggbbaa",
+        "default": "#00000000",
+        "order": 3,
+        "pattern": "^#[0-9a-f]{8}$"
+      },
+      "circleCount": {
+        "type": "integer",
+        "title": "Number of circles N",
+        "minimum": 1,
+        "maximum": 60,
+        "default": 12,
+        "order": 4
+      },
+      "startRadius": {
+        "type": "number",
+        "title": "Start radius in px (at 1920 px screen width)",
+        "minimum": 0,
+        "maximum": 600,
+        "default": 90,
+        "order": 5
+      },
+      "side": {
+        "type": "string",
+        "title": "Circles fly in from",
+        "enum": [
+          "right",
+          "left",
+          "top",
+          "bottom",
+          "all sides"
+        ],
+        "default": "right",
+        "order": 6
+      },
+      "exitSide": {
+        "type": "string",
+        "title": "Circles fly out to",
+        "enum": [
+          "right",
+          "left",
+          "top",
+          "bottom",
+          "all sides"
+        ],
+        "default": "right",
+        "order": 7
+      },
+      "flySeconds": {
+        "type": "number",
+        "title": "Fly-in duration in seconds",
+        "minimum": 0.4,
+        "maximum": 10,
+        "default": 1.6,
+        "order": 8
+      },
+      "growSeconds": {
+        "type": "number",
+        "title": "Grow duration in seconds",
+        "minimum": 0.3,
+        "maximum": 10,
+        "default": 1.2,
+        "order": 9
+      },
+      "overlapSeconds": {
+        "type": "number",
+        "title": "Growth starts this many seconds before a circle stops moving (0 = only after it stopped)",
+        "minimum": 0,
+        "maximum": 1.5,
+        "default": 0.4,
+        "order": 10
+      }
+    }
+  }
+}
